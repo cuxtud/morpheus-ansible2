@@ -1,0 +1,34 @@
+---
+# This playbook will install rabbitmq
+
+- name: install perl
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add rabbitmq apt repo
+  apt_repository: repo='deb https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ trusty main' state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add rabbitmq public key
+  apt_key: url=https://packagecloud.io/gpg.key state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: update apt
+  apt: update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install rabbitmq
+  apt: pkg=rabbitmq-server=3.6.0-1 state=present update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: verify rabbitmq is running
+  service: name=rabbitmq-server state=started
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: install rabbit management and stop rabbit
+  shell: rabbitmq-plugins enable rabbitmq_management && service rabbitmq-server stop && update-rc.d -f rabbitmq-server remove
+  ignore_errors: yes

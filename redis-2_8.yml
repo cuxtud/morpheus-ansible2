@@ -1,0 +1,12 @@
+---
+- hosts: all
+  vars:
+    download_url: http://download.redis.io/releases/redis-2.8.23.tar.gz
+    package_name: redis-2.8.23.tar.gz
+    file_checksum: 828fc5d4011e6141fabb2ad6ebc193e8f0d08cfa
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - redis-2_8

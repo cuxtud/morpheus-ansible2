@@ -1,0 +1,32 @@
+---
+# This playbook will install memcached
+
+- name: install perl gcc libc6-dev libevent-dev libevent-2.0-5 make
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+    - gcc 
+    - libc6-dev 
+    - libevent-dev 
+    - libevent-2.0-5
+    - make
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add memcache group and user
+  shell: groupadd -r memcache && useradd -r -g memcache memcache
+  ignore_errors: yes
+
+- name: download memcached
+  shell: curl -SL "http://memcached.org/files/memcached-1.4.24.tar.gz" -o memcached.tar.gz && echo "32a798a37ef782da10a09d74aa1e5be91f2861db memcached.tar.gz" | sha1sum -c - && mkdir -p /usr/src/memcached && tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 && rm memcached.tar.gz
+
+- name: install memcached
+  shell: cd /usr/src/memcached && ./configure && make && make install && cd / && rm -rf /usr/src/memcached && apt-get purge -y --auto-remove gcc libc6-dev libevent-dev
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add memcached upstart
+  template: src=memcached.conf.j2 dest=/etc/init/memcached.conf mode=0644
+
+- name: add upstart override
+  template: src=memcached.override.j2 dest=/etc/init/memcached.override mode=0644

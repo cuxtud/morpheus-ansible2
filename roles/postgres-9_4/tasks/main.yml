@@ -1,0 +1,58 @@
+---
+# This playbook will install postgres.
+
+- name: update apt
+  apt: update_cache=yes
+
+- name: install git wget curl vim locales ca-certificates
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - perl
+    - vim
+    - locales
+    - ca-certificates
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add postgres group and user
+  shell: groupadd -r postgres && useradd -r -g postgres postgres && usermod -u 1000 postgres
+  ignore_errors: yes
+
+- name: enable utf-8 by default
+  shell: localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+  ignore_errors: yes
+
+- name: make morpheus directories
+  shell: mkdir -p /morpheus/config && mkdir -p /morpheus/logs && mkdir -p /morpheus/data
+
+- name: get keys
+  shell: apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+  ignore_errors: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: create postgres apt repos
+  shell: echo 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main' 9.4 > /etc/apt/sources.list.d/pgdg.list
+  ignore_errors: yes
+
+- name: import repo signing key and update packages
+  shell: wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+  ignore_errors: yes
+
+- name: install postgres
+  shell: apt-get update && apt-get install -y postgresql-common && sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf && apt-get install -y postgresql-9.4 postgresql-contrib-9.4=9.4.5-2.pgdg14.04+1
+  ignore_errors: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: make postgres run directory
+  shell: mkdir -p /var/run/postgresql && chown -R postgres /var/run/postgresql && mkdir -p /var/lib/postgresql/data
+
+- name: set PATH
+  lineinfile: dest=/etc/environment regexp='PATH=(["]*)((?!.*?/usr/lib/postgresql/9.4/bin).*?)(["]*)$' line='PATH=\1\2:/usr/lib/postgresql/9.4/bin\3' state=present backrefs=yes
+
+- name: set PGDATA
+  lineinfile: dest=/etc/environment regexp='^PGDATA=/var/lib/postgresql/data/pgdata' line="PGDATA=/var/lib/postgresql/data/pgdata" state=present
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777

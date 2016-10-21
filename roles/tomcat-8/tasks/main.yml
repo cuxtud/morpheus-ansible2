@@ -1,0 +1,26 @@
+---
+# This playbook will install Tomcat 8
+
+# create morpheus config directory if it doesn't exist
+- name: make morpheus config directory
+  file: path=/morpheus/config state=directory recurse=yes
+
+# create morpheus logs directory if it doesn't exist
+- name: make morpheus logs directory
+  file: path=/morpheus/logs state=directory recurse=yes
+
+# create morpheus data directory if it doesn't exist
+- name: make morpheus data directory
+  file: path=/morpheus/data state=directory recurse=yes
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: copy startup txt
+  template: src=startup.txt.j2 dest=/startup.txt mode=0777
+
+- name: add tomcat upstart
+  template: src=tomcat.conf.j2 dest=/etc/init/tomcat.conf mode=0644
+
+- name: add upstart override
+  template: src=tomcat.override.j2 dest=/etc/init/tomcat.override mode=0644

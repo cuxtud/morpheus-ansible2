@@ -1,0 +1,36 @@
+[[local|localrc]]
+# FLOATING_RANGE=0.0.0.0/24
+# FIXED_RANGE=0.0.0.0/24
+# FIXED_NETWORK_SIZE=256
+# FLAT_INTERFACE=eth0
+ADMIN_PASSWORD=password
+MYSQL_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+SERVICE_TOKEN=$ADMIN_PASSWORD
+# HOST_IP=0.0.0.0
+# SERVICE_HOST=0.0.0.0
+# NETWORK_GATEWAY=0.0.0.0
+LOGFILE=/var/log/stack.sh.log
+LOG_COLOR=false
+LOGDAYS=1
+LOGDIR=/var/log
+# VOLUME_BACKING_FILE_SIZE=1M
+disable_service n-net
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+# Optional, to enable tempest configuration as part of devstack
+enable_service tempest
+
+Q_USE_SECGROUP=True
+# Q_FLOATING_ALLOCATION_POOL=start=0.0.0.0,end=0.0.0.0
+# PUBLIC_NETWORK_GATEWAY=0.0.0.0
+Q_L3_ENABLED=True
+PUBLIC_INTERFACE=eth0
+Q_USE_PROVIDERNET_FOR_PUBLIC=True
+OVS_PHYSICAL_BRIDGE=br-ex
+PUBLIC_BRIDGE=br-ex
+OVS_BRIDGE_MAPPINGS=public:br-ex

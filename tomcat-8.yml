@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars:
+    java_installer_version: oracle-java8-installer
+    java_set_default_version: oracle-java8-set-default  
+    tomcat_download_url: http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.37/bin/apache-tomcat-8.0.37.tar.gz
+    tomcat_package_name: tomcat.tar.gz
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - tomcat-8

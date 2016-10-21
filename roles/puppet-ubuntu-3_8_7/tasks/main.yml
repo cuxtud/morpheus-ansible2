@@ -1,0 +1,22 @@
+---
+# This playbook will install puppet
+- name: download puppet
+  get_url: url=https://apt.puppetlabs.com/puppetlabs-release-trusty.deb dest=/tmp/puppetlabs-release-trusty.deb mode=0777
+
+- name: add puppet package
+  shell: 'sudo dpkg -i /tmp/puppetlabs-release-trusty.deb'
+
+- name: update apt
+  apt: update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install git wget curl vim
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - perl
+    - vim
+    - puppet
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'

@@ -1,0 +1,41 @@
+---
+# This playbook will install activemq
+
+- name: install perl openjdk-7-jre-headless sysv-rc-conf
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - openjdk-7-jre-headless
+    - sysv-rc-conf
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add activemq group and user
+  shell: groupadd -r activemq && useradd -r -g activemq activemq
+  ignore_errors: yes
+
+#- name: activemq usermod
+#  shell: usermod -u 1000 activemq 
+#  ignore_errors: yes
+
+- name: install activemq
+  shell: cd / && wget -q "{{download_url}}" && tar zxf "{{package_name}}"-bin.tar.gz && rm {{package_name}}-bin.tar.gz && mv /{{package_name}}/ /opt && ln -s /opt/{{package_name}}/bin/linux-x86-64/activemq /etc/init.d/activemq && chmod +x /etc/init.d/activemq
+
+- name: set RUN_AS_USER to activemq
+  lineinfile: dest=/opt/{{package_name}}/bin/linux-x86-64/activemq state=present regexp='^#RUN_AS_USER' line='RUN_AS_USER=activemq'
+
+- name: chown activemq directory
+  file: path=/opt/{{package_name}} state=directory owner=activemq recurse=yes
+
+- name: create activemq data directory
+  file: path=/data/activemq state=directory owner=activemq group=activemq recurse=yes mode=0777
+
+- name: create activemq log directory
+  file: path=/var/log/activemq state=directory owner=activemq group=activemq recurse=yes mode=0755
+
+- name: set activemq conf log directory
+  lineinfile: dest=/opt/{{package_name}}/bin/linux-x86-64/wrapper.conf state=present regexp='^wrapper.logfile=' line='wrapper.logfile=/var/log/activemq/activemq.log'
+
+- name: enable the activemq service
+  service: name=activemq enabled=yes state=stopped
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777

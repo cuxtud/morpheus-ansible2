@@ -1,0 +1,40 @@
+---
+# This is a test to see if we can use common roles across multiple roles
+
+- name: pipe current time to file for rudimentary versioning
+  shell: echo "This image was generated on $(date) " > /root/VERSION
+
+- name: update apt
+  apt: update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install git wget curl vim unzip perl
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - vim
+    - unzip
+    - perl
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+# Update all packages to the latest version
+- name: Update all packages to the latest version
+  apt: upgrade=dist
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: update apt
+  apt: update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+  # Add or modify nofile soft limit
+- name: Set the nofile soft limit
+  pam_limits: domain=* limit_type=soft limit_item=nofile value=65535
+
+  # Add or modify nofile hard limit
+- name: Set the nofile hard limit
+  pam_limits: domain=* limit_type=hard limit_item=nofile value=65535
+
+- name: Set the file limits 
+  sysctl: name="fs.file-max" value=100000 sysctl_set=yes state=present reload=yes

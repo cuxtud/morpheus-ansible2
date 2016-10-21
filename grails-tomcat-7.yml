@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars:
+    java_installer_version: oracle-java7-installer
+    java_set_default_version: oracle-java7-set-default
+    tomcat_download_url: http://shinyfeather.com/tomcat/tomcat-7/v7.0.72/bin/apache-tomcat-7.0.72.tar.gz
+    tomcat_package_name: tomcat.tar.gz
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - grails-tomcat-7

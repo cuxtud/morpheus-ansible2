@@ -1,0 +1,16 @@
+---
+# This playbook will install mysql and create db user and give permissions.
+
+#- name: apt prep
+#  shell: apt-get update && apt-get install -y git wget curl vim --no-install-recommends
+#  ignore_errors: yes
+#  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: clone devstack
+  shell: cd /opt && git clone https://git.openstack.org/openstack-dev/devstack && cd /opt/devstack && git checkout stable/liberty
+
+- name: add template
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add devstack config
+  template: src=local.conf.j2 dest=/opt/devstack/local.conf.sample mode=0777

@@ -1,0 +1,15 @@
+---
+# This playbook will install tomcat 
+
+# create tomcat directory if it doesn't exist
+- name: make tomcat directory
+  file: path=/usr/local/tomcat state=directory recurse=yes
+
+- name: Download Tomcat package
+  get_url:
+    url="{{tomcat_download_url}}"
+    dest="/usr/local/tomcat/{{tomcat_package_name}}"
+    validate_certs=no
+
+- name: Unpack Tomcat
+  shell: 'cd /usr/local/tomcat && tar -xvf /usr/local/tomcat/{{tomcat_package_name}} --strip-components=1 && rm bin/*.bat && rm tomcat.tar.gz*'

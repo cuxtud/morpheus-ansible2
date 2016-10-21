@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    download_url: https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
+    package_name: puppetlabs-release-trusty.deb
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - puppet-3_8

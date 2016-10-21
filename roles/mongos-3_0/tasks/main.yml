@@ -1,0 +1,61 @@
+---
+# This playbook will install mongo
+
+- name: update apt
+  apt: update_cache=yes
+
+- name: install git wget curl vim pwgen ntp
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - perl
+    - vim
+    - pwgen 
+    - ntp
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: get keys
+  shell: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: create mongodb list file
+  shell: echo 'deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse' | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+
+- name: install mongodb
+  shell: apt-get update && apt-get install -y mongodb-org=3.0.6 mongodb-org-server=3.0.6 mongodb-org-shell=3.0.6 mongodb-org-mongos=3.0.6 mongodb-org-tools=3.0.6
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: create mongodb data directory
+  file: path=/data/db state=directory owner=mongodb recurse=yes
+
+- name: create mongodb log directory
+  file: path=/var/log/mongodb state=directory owner=mongodb recurse=yes
+
+- name: set mongodb conf data directory
+  lineinfile: dest=/etc/mongod.conf state=present regexp='^dbpath' line='dbpath=/data/db'
+
+- name: set mongodb conf listen
+  lineinfile: dest=/etc/mongod.conf state=present regexp='^bind_ip = 127.0.0.1' line='#bind_ip = 127.0.0.1'
+
+- name: move mongod.conf and change to mongos.conf
+  shell: mkdir -p /etc/mongodb/ && mv /etc/mongod.conf /etc/mongodb/mongos.conf
+
+- name: rename upstart to mongos.conf
+  shell: mv /etc/init/mongod.conf /etc/init/mongos.conf
+
+- name: change upstart to point to mongos.conf
+  lineinfile: "dest=/etc/init/mongos.conf state=present regexp='^  CONF=/etc/mongod.conf' line='  CONF=/etc/mongodb/mongos.conf'"
+
+- name: change upstart daemon to mongos
+  lineinfile: "dest=/etc/init/mongos.conf state=present regexp='^  DAEMON=/usr/bin/mongod' line='  DAEMON=/usr/bin/mongos'"
+
+- name: copy set_mongodb_password script
+  template: src=set_mongodb_password.sh.j2 dest=/set_mongodb_password.sh mode=0777
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: stop mongo
+  service: name=mongos state=stopped enabled=no

@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+if [ -e "/var/opt/morpheus/vm/morpheus.env" ]; then
+	source /var/opt/morpheus/vm/morpheus.env
+fi
+
+if [ "$1" = 'php' ]; then
+	echo "launching nginx and fpm"
+	cp /default.conf /etc/nginx/conf.d/
+	cp /index.php /var/www/html/
+	exec /start.sh
+#	service supervisor start
+else
+	echo "not launching nginx and fpm"
+	exec "$@"
+fi

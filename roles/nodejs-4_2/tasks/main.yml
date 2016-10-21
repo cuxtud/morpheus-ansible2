@@ -1,0 +1,31 @@
+---
+# This playbook will install nodejs
+
+- name: update apt
+  apt: update_cache=yes
+
+- name: install git wget curl vim
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - perl
+    - vim
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: download nodejs
+  shell: mkdir -p /usr/local/node && cd /usr/local/node && curl https://nodejs.org/dist/v4.2.1/node-v4.2.1-linux-x64.tar.gz -o node.tar.gz && tar -C /usr/local --strip-components=1 -xvf node.tar.gz && rm node.tar.gz*
+  ignore_errors: yes
+
+- name: make morpheus directories
+  shell: mkdir -p /morpheus/config && mkdir -p /morpheus/logs && mkdir -p /morpheus/data
+
+- name: copy hello.js
+  template: src=hello.js.j2 dest=/hello.js mode=0777
+
+- name: copy startup.txt
+  template: src=startup.txt.j2 dest=/startup.txt mode=0777
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777

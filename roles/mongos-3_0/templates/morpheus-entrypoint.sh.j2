@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+if [ -e "/var/opt/morpheus/vm/morpheus.env" ]; then
+	#escape spaces before mongo cli options
+	sed -i 's/ --\+/\\ --/g' /var/opt/morpheus/vm/morpheus.env
+	source /var/opt/morpheus/vm/morpheus.env
+fi
+
+echo $@
+
+if [ ! -f /data/db/.mongodb_password_set ]; then
+    /set_mongodb_password.sh $@
+fi
+
+if [ "${1:0:1}" = '-' ]; then
+        set -- mongod "$@"
+fi
+
+numa='numactl --interleave=all'
+if $numa true &> /dev/null; then
+        set -- $numa "$@"
+fi
+
+chown -R mongodb /data/db
+chown -R mongodb /var/log/mongodb
+
+service ntp stop
+ntpdate -u 0.us.pool.ntp.org
+service ntp start
+sleep 2
+service mongos start

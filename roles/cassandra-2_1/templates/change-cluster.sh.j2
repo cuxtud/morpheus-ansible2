@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+if [ -e "/var/opt/morpheus/vm/morpheus.env" ]; then
+    source /var/opt/morpheus/vm/morpheus.env
+fi
+
+cqlsh -e "UPDATE system.local SET cluster_name = '${CASSANDRA_CLUSTER_NAME}' where key='local';" && nodetool flush

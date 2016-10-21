@@ -1,0 +1,27 @@
+---
+# This playbook will install elasticsearch
+
+- name: install perl
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Download elasticsearch package
+  get_url:
+    url="{{download_url}}"
+    dest="/{{package_name}}"
+
+- name: Install elasticsearch
+  apt: deb="/{{package_name}}"
+  sudo: true
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add elastic upstart
+  template: src=elasticsearch.conf.j2 dest=/etc/init/elasticsearch.conf mode=0644
+
+- name: add upstart override
+  template: src=elasticsearch.override.j2 dest=/etc/init/elasticsearch.override mode=0644

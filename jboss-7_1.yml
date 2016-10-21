@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    download_url: http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.tar.gz
+    package_name: jboss-as-7.1.1.Final.tar.gz
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - jboss-7_1

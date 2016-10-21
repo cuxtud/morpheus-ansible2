@@ -1,0 +1,59 @@
+---
+# This playbook will install mysql and create db user and give permissions.
+
+- name: add mysql group
+  shell: groupadd -r mysql && useradd -r -g mysql mysql
+#  ignore_errors: no
+  ignore_errors: yes
+
+- name: myslq usermod
+  shell: usermod -u 1000 mysql
+  ignore_errors: yes
+
+- name: apt prep
+#  shell: apt-get update && apt-get install -y git wget curl vim perl --no-install-recommends && apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys A4A9406876FCBD3C456770C88C718D3B5072E1F5 
+  shell: apt-get install -y perl --no-install-recommends && apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys A4A9406876FCBD3C456770C88C718D3B5072E1F5 
+  ignore_errors: no
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: get mysql apt list
+  shell: echo "deb http://repo.mysql.com/apt/ubuntu trusty mysql-5.6" > /etc/apt/sources.list.d/mysql.list
+  ignore_errors: no
+
+- name: install mysql
+#  shell: "{ echo mysql-community-server mysql-community-server/data-dir select ''; echo mysql-community-server mysql-community-server/root-pass password ''; echo mysql-community-server mysql-community-server/re-root-pass password ''; echo mysql-community-server mysql-community-server/remove-test-db select false; } | debconf-set-selections && apt-get update && apt-get install -y mysql-server={{mysql_version}} && service mysql stop && rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf && update-rc.d -f mysql remove "
+  shell: "{ echo mysql-community-server mysql-community-server/data-dir select ''; echo mysql-community-server mysql-community-server/root-pass password ''; echo mysql-community-server mysql-community-server/re-root-pass password ''; echo mysql-community-server mysql-community-server/remove-test-db select false; } | debconf-set-selections && apt-get update && apt-get install -y mysql-server && service mysql stop && rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf && update-rc.d -f mysql remove "
+  ignore_errors: no
+
+#- name: enable the mysql service
+#  service: name=mysql enabled=yes state=stopped
+
+- name: set home directory for mysql to /var/lib/mysql
+  shell: usermod -d /var/lib/mysql/ mysql
+
+- name: MySQL | Create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: MySQL | Copy init script
+  template: src=mysql.init.j2 dest=/etc/init.d/mysql mode=0755
+
+- stat: path=/var/log/mysql/mysql.log
+  register: general_log
+
+- name: ensure mysql general log exists
+  file: path=/var/log/mysql/mysql.log state=touch owner=mysql group=mysql mode=0644
+  when: general_log.stat.exists == False
+
+- stat: path=/var/log/mysql/slow.log
+  register: slow_log
+
+- name: ensure mysql slow query log exists
+  file: path=/var/log/mysql/slow.log state=touch owner=mysql group=mysql mode=0644
+  when: slow_log.stat.exists == False
+
+- stat: path=/var/log/mysql/error.log
+  register: error_log
+
+- name: ensure mysql error log exists
+  file: path=/var/log/mysql/error.log state=touch owner=mysql group=mysql mode=0644
+  when: error_log.stat.exists == False

@@ -1,0 +1,55 @@
+---
+# This playbook will install zookeeper
+
+- name: update apt
+  apt: update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install git wget curl vim openjdk-7
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - perl
+    - vim
+    - openjdk-7-jre-headless
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: download zookeeper source
+  get_url: url=https://archive.apache.org/dist/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz dest=/opt
+
+- name: extract zookeeper source
+  unarchive: src=/opt/zookeeper-3.4.6.tar.gz dest=/opt copy=no
+
+- name: rename zookeeper directory
+  shell: 'mv /opt/zookeeper-3.4.6 /opt/zookeeper'
+
+- name: make morpheus directories
+  shell: mkdir -p /tmp/zookeeper && mkdir -p /morpheus/logs && mkdir -p /morpheus/data
+
+- name: add zookeeper group and user
+  shell: groupadd -r zookeeper && useradd -r -g zookeeper zookeeper -d /var/lib/zookeeper
+
+- name: zookeeper usermod
+  shell: usermod -u 1000 zookeeper
+  ignore_errors: yes
+
+- name: make zookeeper directories
+  shell: mkdir /var/lib/zookeeper && chown -R zookeeper:zookeeper /var/lib/zookeeper && cp /opt/zookeeper/conf/* /tmp/zookeeper/
+  ignore_errors: yes
+
+- name: copy zookeeper config file
+  template: src=zoo.cfg.j2 dest=/opt/zookeeper/conf/zoo.cfg mode=0777
+
+- name: set JAVA_HOME
+  lineinfile: dest=/etc/profile regexp='^JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64' line="JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64" state=present
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add zookeeper upstart
+  template: src=zookeeper.conf.j2 dest=/etc/init/zookeeper.conf mode=0644
+
+- name: add upstart override
+  template: src=zookeeper.override.j2 dest=/etc/init/zookeeper.override mode=0644

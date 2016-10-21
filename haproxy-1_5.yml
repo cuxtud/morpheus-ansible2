@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    download_url: http://www.haproxy.org/download/1.5/src/haproxy-1.5.14.tar.gz
+    package_name: apache-activemq-5.11.1
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - haproxy-1_5

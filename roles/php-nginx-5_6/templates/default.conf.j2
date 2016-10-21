@@ -1,0 +1,48 @@
+server {
+	
+	listen       80;
+  listen       443 ssl;
+	server_name  localhost;
+
+  ssl_certificate /etc/nginx/certs/nginx.crt;
+  ssl_certificate_key /etc/nginx/certs/nginx.key;
+  ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+
+  root   /var/www/html;
+
+	location / {
+	  index index.php index.html index.htm;
+		try_files $uri $uri/ /index.php?q=$uri&$args;
+	}
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+		fastcgi_index index.php;
+		include fastcgi_params;
+	}
+
+	location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml)$ {
+		expires 5d;
+	}
+
+	#error_page  404              /404.html;
+	# redirect server error pages to the static page /50x.html
+	#
+	error_page   500 502 503 504  /50x.html;
+	location = /50x.html {
+		root   /usr/share/nginx/html;
+	}
+
+	location ~ /\. {
+		log_not_found off; 
+		deny all;
+	}
+
+  #error_log syslog:server=unix:/dev/log,tag=container_nginx_40,severity=error;
+  #access_log syslog:server=unix:/dev/log,tag=container_nginx_40,severity=info;
+
+}

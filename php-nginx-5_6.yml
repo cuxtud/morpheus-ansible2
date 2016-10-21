@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    php:
+      ppa: php5-5.6
+      packages: [php5-cli, php5-intl, php5-mcrypt, php5-mysql, php-apc, php5-curl, php5-gd, php5-mcrypt, php5-memcache, php5-sqlite, php5-tidy, php5-xmlrpc, php5-xsl, php5-pgsql, php5-mongo]
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  roles:
+    - php-nginx-5_6

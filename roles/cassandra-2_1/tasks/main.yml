@@ -1,0 +1,38 @@
+---
+# This playbook will install cassandra
+
+#- name: install wget curl ca-certificates
+#  apt: pkg={{item}} install_recommends=no state=installed
+#  with_items:
+#    - wget
+#    - curl
+
+#- name: java prep
+#  shell: 'echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && add-apt-repository -y ppa:webupd8team/java && apt-get update && apt-get install -y oracle-java8-installer && rm -rf /var/cache/oracle-jdk8-installer'
+#  ignore_errors: yes
+
+- name: create cassandra list file
+  shell: echo 'deb http://www.apache.org/dist/cassandra/debian 21x main' | sudo tee -a /etc/apt/sources.list.d/cassandra.list
+
+- name: create cassandra src list file
+  shell: echo 'deb-src http://www.apache.org/dist/cassandra/debian 21x main' | sudo tee -a /etc/apt/sources.list.d/cassandra.list
+
+- name: get key 1
+  shell: gpg --keyserver pgp.mit.edu --recv-keys F758CE318D77295D && gpg --export --armor F758CE318D77295D | sudo apt-key add -
+
+- name: get key 2
+  shell: gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00 && gpg --export --armor 2B5C1B00 | sudo apt-key add -
+
+- name: get key 3
+  shell: gpg --keyserver pgp.mit.edu --recv-keys 0353B12C && gpg --export --armor 0353B12C | sudo apt-key add -
+
+- name: install cassandra
+  shell: apt-get update && apt-get install -y cassandra
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: script to change cluster name
+  template: src=change-cluster.sh.j2 dest=/change-cluster.sh mode=0777
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+

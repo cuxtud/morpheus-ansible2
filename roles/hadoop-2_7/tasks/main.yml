@@ -1,0 +1,79 @@
+---
+# This playbook will install hadoop
+
+- name: install perl software-properties-common openssh-server zookeeperd rsync
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+    - software-properties-common
+    - openssh-server 
+    - zookeeperd 
+    - rsync
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: get lists and keys
+  shell: echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" > /etc/apt/sources.list.d/webupd8team-java.list && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886
+
+- name: install java 7
+  shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && add-apt-repository -y ppa:webupd8team/java && apt-get update && apt-get install -y oracle-java7-installer && rm -rf /var/cache/oracle-jdk7-installer
+
+- name: add hadoop group and hduser zookeeper user
+  shell: groupadd -r hadoop && useradd -g hadoop hduser && usermod -a -G hadoop zookeeper
+
+- name: hduser usermod
+  shell: usermod -u 1000 hduser 
+  ignore_errors: yes
+
+- name: create hduser ssh directory
+  file: path=/home/hduser/.ssh state=directory owner=hduser group=hadoop mode=0700
+
+- name: get hadoop tar
+  shell: cd / && wget -q https://www.apache.org/dist/hadoop/core/hadoop-2.7.1/hadoop-2.7.1.tar.gz && su -l -c 'ssh-keygen -t rsa -f /home/hduser/.ssh/id_rsa -P ""' hduser && cat /home/hduser/.ssh/id_rsa.pub | su -l -c 'tee -a /home/hduser/.ssh/authorized_keys' hduser
+
+- name: copy ssh-config
+  template: src=ssh-config.j2 dest=/home/hduser/.ssh/config owner=hduser group=hadoop mode=0600
+
+- name: sed
+  shell: sed -ri 's/session[[:blank:]]+required[[:blank:]]+pam_loginuid.so/session optional pam_loginuid.so/g' /etc/pam.d/sshd
+
+- name: install hadoop
+  shell: tar xvfz /hadoop-2.7.1.tar.gz -C /opt && rm /hadoop-2.7.1.tar.gz && ln -s /opt/hadoop-2.7.1 /opt/hadoop && chown -R root:root /opt/hadoop-2.7.1 
+
+- name: set JAVA_HOME in hadoop-env.sh
+  lineinfile: dest=/opt/hadoop/etc/hadoop/hadoop-env.sh state=present regexp='^export JAVA_HOME=' line='export JAVA_HOME=/usr/lib/jvm/java-7-oracle/'
+
+- name: create hadoop log directory
+  file: path=/opt/hadoop-2.7.1/logs state=directory owner=hduser group=hadoop recurse=yes
+
+- name: create hadoop data directory
+  file: path=/home/hduser/hdfs-data state=directory owner=hduser group=hadoop recurse=yes
+
+- name: create hadoop config directory
+  file: path=/tmp/hadoop-config state=directory owner=hduser group=hadoop recurse=yes
+
+- name: copy hadoop-config to tmp
+  shell: cp -r /opt/hadoop/etc/hadoop/* /tmp/hadoop-config/
+
+- name: copy bashrc
+  template: src=bashrc.j2 dest=/home/hduser/.bashrc mode=0777 owner=hduser group=hadoop
+
+- name: copy .profile for hduser
+  template: src=profile.j2 dest=/home/hduser/.profile mode=0777 owner=hduser group=hadoop
+
+- name: copy core-site.xml
+  template: src=core-site.xml.j2 dest=/tmp/hadoop-config/core-site.xml mode=0777
+
+- name: copy yarn-site.xml
+  template: src=yarn-site.xml.j2 dest=/tmp/hadoop-config/yarn-site.xml mode=0777
+
+- name: copy mapred-site.xml
+  template: src=mapred-site.xml.j2 dest=/tmp/hadoop-config/mapred-site.xml mode=0777
+
+- name: copy hdfs-site.xml
+  template: src=hdfs-site.xml.j2 dest=/tmp/hadoop-config/hdfs-site.xml mode=0777
+
+- name: copy hadoop-config from tmp
+  shell: cp /tmp/hadoop-config/* /opt/hadoop/etc/hadoop/
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777

@@ -1,0 +1,14 @@
+---
+- hosts: all
+  vars:
+    gosu_version: 1.7
+    cassandra_version: 2.1.14
+    cassandra_config: /etc/cassandra
+    java_installer_version: oracle-java8-installer
+    java_set_default_version: oracle-java8-set-default
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - cassandra-2_1

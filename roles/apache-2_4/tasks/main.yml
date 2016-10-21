@@ -1,0 +1,47 @@
+---
+# This playbook will install apache.
+
+- name: install perl
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: set environment vars
+  lineinfile: dest=/etc/environment state=present regexp='^APACHE_RUN_DIR' line='APACHE_RUN_DIR=/etc/apache2'
+
+- name: set environment vars
+  lineinfile: dest=/etc/environment state=present regexp='^APACHE_RUN_USER' line='APACHE_RUN_USER=www-data'
+
+- name: set environment vars
+  lineinfile: dest=/etc/environment state=present regexp='^APACHE_RUN_GROUP' line='APACHE_RUN_GROUP=www-data'
+
+- name: set environment vars
+  lineinfile: dest=/etc/environment state=present regexp='^APACHE_LOG_DIR' line='APACHE_LOG_DIR=/var/log/apache2'
+
+- name: set environment vars
+  lineinfile: dest=/etc/environment state=present regexp='^APACHE_LOCK_DIR' line='APACHE_LOCK_DIR=/var/lock/apache2'
+
+- name: install apache2
+  shell: apt-get update && apt-get -y install apache2
+  ignore_errors: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: link directories
+  shell: /bin/ln -sf ../sites-available/default-ssl.conf /etc/apache2/sites-enabled/001-default-ssl.conf && /bin/ln -sf ../mods-available/ssl.conf /etc/apache2/mods-enabled/ && /bin/ln -sf ../mods-available/ssl.load /etc/apache2/mods-enabled/
+  ignore_errors: yes
+
+- name: load modules
+  shell: cp /etc/apache2/mods-available/socache_shmcb.load /etc/apache2/mods-enabled/
+  ignore_errors: yes
+
+- name: make staging directory and copy
+  shell: mkdir -p /staging && cp -r /etc/ssl /staging/
+  ignore_errors: yes
+
+- name: define name for use
+  shell: /usr/sbin/apache2ctl -DFOREGROUND
+  ignore_errors: yes
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777

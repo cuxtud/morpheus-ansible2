@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars:
+    java_installer_version: oracle-java8-installer
+    java_set_default_version: oracle-java8-set-default
+    download_url: https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.4/elasticsearch-2.3.4.deb
+    package_name: elasticsearch-2.3.4.deb
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - elasticsearch-2_3

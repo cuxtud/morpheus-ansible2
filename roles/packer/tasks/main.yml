@@ -1,0 +1,19 @@
+---
+# This playbook will install packer and clone packer github repo.
+
+- name: Packer | Download Packer
+  command: "wget -O /home/vagrant/packer.zip https://releases.hashicorp.com/packer/0.8.6/packer_0.8.6_linux_amd64.zip"
+
+- name: Packer | Prepare Packer
+  command: "mkdir /home/vagrant/packer"
+
+- name: Packer | Unzip Packer
+  command: "unzip /home/vagrant/packer.zip -d /home/vagrant/packer"
+
+- name: Packer | Set Packer Path
+  command: "export PATH=$PATH:/home/vagrant/packer"
+
+- name: Packer | Set Packer Path
+  command: "git clone https://github.com/bertramdev/morpheus-images.git "
+
+  sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils

@@ -1,0 +1,8 @@
+server { 
+	listen 80;
+	root /home/app/webapp/public;
+	passenger_enabled on;
+	passenger_user app;
+	passenger_load_shell_envvars on;
+	passenger_ruby /usr/bin/ruby2.1;
+}

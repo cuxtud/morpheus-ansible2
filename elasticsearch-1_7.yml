@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars:
+    java_installer_version: oracle-java8-installer
+    java_set_default_version: oracle-java8-set-default
+    download_url: https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.5.deb
+    package_name: elasticsearch-1.7.5.deb
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - elasticsearch-1_7

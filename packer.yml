@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - packer
+
+  tasks:
+    - apt: "name={{ item }} state=installed"
+      with_items:
+        - git
+        - wget
+        - curl
+        - vim
+        - unzip
+        - qemu
+        - qemu-kvm
+        - libvirt-bin

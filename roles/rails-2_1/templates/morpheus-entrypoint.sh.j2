@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+if [ -e "/var/opt/morpheus/vm/morpheus.env" ]; then
+	source /var/opt/morpheus/vm/morpheus.env
+fi
+
+if [ ! -d "/home/app/webapp/app" ]; then
+	sudo /bin/bash -x /etc/my_init.d/startup.sh
+fi
+
+chown -R app:app /home/app/webapp
+exec passenger start -e production /home/app/webapp

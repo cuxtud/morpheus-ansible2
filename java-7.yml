@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    java_installer_version: oracle-java7-installer
+    java_set_default_version: oracle-java7-set-default
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - java-7

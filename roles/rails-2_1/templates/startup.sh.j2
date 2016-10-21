@@ -1,0 +1,50 @@
+#!/bin/bash
+echo "rails startup: start"
+chown -R app:app /home/app/webapp
+cd /home/app/webapp
+
+if [ ! "$(ls /home/app/webapp/app)" ]; then
+	tar -xf /app.tar
+fi
+
+chown -R app:app /home/app/webapp
+
+if [ -d "/home/app/webapp/log" ]; then
+  rm -rf /home/app/webapp/log
+fi
+
+if [ ! -d "/home/app/webapp/log" ]; then
+  ln -s /home/app/logs /home/app/webapp/log
+fi
+
+if [ -f /home/app/config/customStartup.sh ] ; then
+	chmod +x /home/app/config/*.sh
+	/home/app/config/customStartup.sh &> /home/app/logs/startup.log
+fi
+
+if [ -f /home/app/config/evars.conf ] ; then
+	cp /home/app/config/evars.conf /etc/nginx/main.d/
+fi
+
+export HOME=/home/app/webapp
+chown -R app:app /home/app/webapp
+
+if [ -f /home/app/webapp/Gemfile ] ; then
+	sudo -u app bundle install --deployment --without development test	
+fi
+
+if [ ! -f /home/app/logs/production.log ] ; then
+	touch /home/app/logs/production.log
+	chmod 777 /home/app/logs/production.log
+fi
+
+if [ -d /home/app/webapp/app/assets ] || [ -d /home/app/webapp/vendor/assets ] ; then
+	sudo -u app RAILS_ENV=production bundle exec rake assets:precompile
+fi
+
+if [ -d /home/app/webapp/db/migrate ] ; then
+	bundle exec rake db:migrate
+	bundle exec rake db:migrate:status
+fi
+
+echo "rails startup: end"

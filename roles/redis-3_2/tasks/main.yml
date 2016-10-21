@@ -1,0 +1,55 @@
+---
+# This playbook will install redis.
+
+- name: install perl gcc libc6-dev make
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+    - gcc
+    - libc6-dev
+    - make
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add redis group and user
+  shell: groupadd -r redis && useradd -r -g redis redis
+  ignore_errors: yes
+
+# create redis log directory if it doesn't exist
+- name: make redis data directory
+  file: path=/redis/data state=directory recurse=yes mode=0755 owner=redis group=redis
+
+- name: make redis directories
+  shell: mkdir -p /usr/src/redis && mkdir /data && mkdir /etc/redis && chown redis:redis /data && chown redis:redis /etc/redis
+  ignore_errors: yes
+
+# create redis log directory if it doesn't exist
+- name: make redis log directory
+  file: path=/var/log/redis state=directory recurse=yes mode=0755 owner=redis group=redis
+
+- name: download redis tar
+  shell: curl -sSL "{{download_url}}" -o redis.tar.gz && echo "{{file_checksum}} *redis.tar.gz" | sha1sum -c - && tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1 && rm redis.tar.gz
+  ignore_errors: yes
+
+- name: install redis
+  shell: make -C /usr/src/redis && make -C /usr/src/redis install
+  ignore_errors: yes
+
+- name: cleanup
+  shell: rm -r /usr/src/redis && apt-get purge -y --auto-remove gcc libc6-dev make
+  ignore_errors: yes
+
+- stat: path=/var/log/redis/redis-server.log
+  register: p
+
+- name: ensure redis server log exists
+  file: path=/var/log/redis/redis-server.log state=touch owner=redis group=redis mode=0777
+  when: p.stat.exists == False
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add redis upstart
+  template: src=redis.conf.j2 dest=/etc/init/redis.conf mode=0644
+
+- name: add upstart override
+  template: src=redis.override.j2 dest=/etc/init/redis.override mode=0644

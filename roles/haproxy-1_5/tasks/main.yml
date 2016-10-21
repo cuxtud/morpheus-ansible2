@@ -1,0 +1,40 @@
+---
+# This playbook will install haproxy
+
+- name: install perl libssl1.0.0 libpcre3 gcc libc6-dev libpcre3-dev libssl-dev make
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+    - libssl1.0.0
+    - libpcre3
+    - gcc 
+    - libc6-dev 
+    - libpcre3-dev 
+    - libssl-dev 
+    - make
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: download haproxy
+  shell: curl -SL "{{download_url}}" -o haproxy.tar.gz && echo "ad9d7262b96ba85a0f8c6acc6cb9edde haproxy.tar.gz" | md5sum -c && mkdir -p /usr/src/haproxy && tar -xzf haproxy.tar.gz -C /usr/src/haproxy --strip-components=1 && rm haproxy.tar.gz 
+
+- name: install haproxy
+  shell: make -C /usr/src/haproxy TARGET=linux2628 USE_PCRE=1 PCREDIR= USE_OPENSSL=1 USE_ZLIB=1 all install-bin && mkdir -p /usr/local/etc/haproxy && cp -R /usr/src/haproxy/examples/errorfiles /usr/local/etc/haproxy/errors && rm -rf /usr/src/haproxy && apt-get purge -y --auto-remove gcc libc6-dev libpcre3-dev libssl-dev
+
+- name: copy haproxy config file
+  template: src=haproxy.cfg.j2 dest=/usr/local/etc/haproxy/haproxy.cfg mode=0777
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add haproxy upstart
+  template: src=haproxy.conf.j2 dest=/etc/init/haproxy.conf mode=0644
+
+- name: add upstart override
+  template: src=haproxy.override.j2 dest=/etc/init/haproxy.override mode=0644
+
+# # do package install (has startup scripts)
+# - name: add haproxy repository
+#   action: apt_repository repo=ppa:vbernat/haproxy-1.5
+
+# - name: install haproxy
+#   shell: apt-get update && apt-get install haproxy=1.5.14*

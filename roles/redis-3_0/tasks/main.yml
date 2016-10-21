@@ -1,0 +1,100 @@
+---
+# This playbook will install redis.
+
+- name: install gcc libc6-dev make
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - gcc
+    - libc6-dev
+    - make
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Download redis install
+  get_url:
+    url: "{{download_url}}"
+    dest: "/tmp/{{package_name}}"
+    checksum: "sha1:{{ file_checksum }}"
+
+# create redis build directory if it doesn't exist
+- name: make redis build directory
+  file: path=/usr/src/redis state=directory recurse=yes mode=0755
+
+- name: extract redis source
+  shell: tar -xzf /tmp/{{package_name}} -C /usr/src/redis --strip-components=1
+
+# make redis
+- name: Running "make" for redis
+  command: '"{{ item }}" chdir=/usr/src/redis'
+  with_items:
+    - make
+
+# install redis
+- name: Running "make install" for redis
+  command: 'make install chdir=/usr/src/redis'
+
+# create redis user
+- name: Create redis user
+  user: name=redis createhome=no home=/var/lib/redis shell=/bin/false
+
+# create redis config directory if it doesn't exist
+- name: make redis config directory
+  file: path=/etc/redis state=directory recurse=yes mode=0755 owner=redis group=redis
+
+# create redis data directory if it doesn't exist
+- name: make redis data directory
+  file: path=/var/redis state=directory recurse=yes mode=0755 owner=redis group=redis
+
+# create redis log directory if it doesn't exist
+- name: make redis log directory
+  file: path=/var/log/redis state=directory recurse=yes mode=0755 owner=redis group=redis
+
+- stat: path=/var/log/redis/redis-server.log
+  register: p
+
+- name: ensure redis server log exists
+  file: path=/var/log/redis/redis-server.log state=touch owner=redis group=redis mode=0777
+  when: p.stat.exists == False
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: Latest version of Ruby is installed
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - ruby2.0
+    - ruby2.0-dev
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Symlink exists for Ruby 2.0
+  file: src=/usr/bin/ruby2.0 dest=/usr/local/bin/ruby state=link
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Symlink exists for Ruby Gems 2.0
+  file: src=/usr/bin/gem2.0 dest=/usr/local/bin/gem state=link
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+# Installs latest available version of redis.
+- name: install redis gem
+  gem: name=redis state=latest executable=/usr/local/bin/gem
+  become_user: root
+
+- name: add redis upstart
+  template: src=redis-server.conf.j2 dest=/etc/init/redis-server.conf mode=0644
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add upstart override
+  template: src=redis-server.override.j2 dest=/etc/init/redis-server.override mode=0644
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+# copy redis config
+- name: Copying sample redis config
+  command: 'cp /usr/src/redis/redis.conf /etc/redis/'
+
+- name: change logfile location in config
+  lineinfile: dest=/etc/redis/redis.conf regexp='^logfile \"\"' line='logfile /var/log/redis/redis-server.log'
+
+- name: change data dir location in config
+  lineinfile: dest=/etc/redis/redis.conf regexp='^dir ./' line='dir /var/redis'
+
+- name: copy create cluster script
+  template: src=create-cluster.sh.j2 dest=/create-cluster.sh mode=0777

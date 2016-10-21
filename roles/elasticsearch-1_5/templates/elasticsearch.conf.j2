@@ -1,0 +1,23 @@
+# ElasticSearch upstart script
+
+description     "ElasticSearch service"
+
+start on runlevel [2345]
+
+stop on runlevel [016]
+
+respawn
+
+respawn limit 10 30
+
+# NB: Upstart scripts do not respect
+# /etc/security/limits.conf, so the open-file limits
+# settings need to be applied here.
+limit nofile 32000 32000
+
+setuid elasticsearch
+setgid elasticsearch
+
+script
+    exec bash -c '/entrypoint.sh'
+end script

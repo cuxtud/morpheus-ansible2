@@ -1,0 +1,33 @@
+---
+# This playbook will install java 8 for use by other playbooks
+
+- name: Add Oracle Java Repository
+  sudo: yes
+  apt_repository: repo='ppa:webupd8team/java' state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Accept Java {{java_installer_version}} License
+  sudo: yes
+  debconf: name='{{java_installer_version}}' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Install Oracle Java {{java_installer_version}}
+  sudo: yes
+  apt: name={{item}} state=latest update-cache=yes force=yes
+  with_items:
+    - "{{java_installer_version}}"
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Install ca-certificates
+  sudo: yes
+  apt: name={{item}} state=latest update-cache=yes force=yes
+  with_items:
+    - ca-certificates
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Setting default version {{java_set_default_version}}
+  sudo: yes
+  apt: name={{item}} state=latest update-cache=yes force=yes
+  with_items:
+    - "{{java_set_default_version}}"
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'

@@ -1,0 +1,56 @@
+---
+# This playbook will install nginx
+
+- name: install perl ssl-cert
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+    - ssl-cert
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add apt repository key
+  apt_key:
+    url: "http://nginx.org/keys/nginx_signing.key"
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add apt repository
+  apt_repository:
+    repo: "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx"
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install nginx
+  apt: 
+    name: "nginx=1.9.0*"
+    state: present
+    update_cache: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: make directories
+  shell: mkdir -p {{item}}
+  with_items:
+    - /var/www/html
+    - /var/cache/html
+    - /etc/nginx/certs
+    - /etc/nginx/sites-enabled
+
+- name: copy nginx config file
+  template: src=default.conf.j2 dest=/default.conf mode=0777
+
+- name: copy default html page
+  template: src=index.html dest=/index.html mode=0777
+
+- name: copy sample ssl certificate 
+  copy: src=/etc/ssl/certs/ssl-cert-snakeoil.pem dest=/etc/nginx/certs/nginx.crt remote_src=true
+
+- name: copy sample ssl certificate key
+  copy: src=/etc/ssl/private/ssl-cert-snakeoil.key dest=/etc/nginx/certs/nginx.key remote_src=true
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: enable the nginx service
+  service: name=nginx enabled=yes state=stopped
+
+#- name: stop nginx
+#  shell: service nginx stop && update-rc.d -f nginx remove
+#  ignore_errors: yes

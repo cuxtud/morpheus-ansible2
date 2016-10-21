@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    download_url: https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/5.0.0-alpha4/elasticsearch-5.0.0-alpha4.deb
+    package_name: elasticsearch-5.0.0-alpha4.deb
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - elasticsearch-5_0

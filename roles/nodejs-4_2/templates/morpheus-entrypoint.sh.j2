@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+mkdir -p /usr/src/myapp
+APP_HOME=/usr/src/myapp
+CONFIG_HOME=/morpheus/config
+cd $APP_HOME
+
+if [[ ! -f $CONFIG_HOME/startup.txt ]]; then
+	cp /startup.txt $CONFIG_HOME/
+fi
+
+export NODE_STARTUP=`cat /morpheus/config/startup.txt`
+
+if [ ! "$(ls -A /usr/src/myapp)" ]; then
+	cp /hello.js /usr/src/myapp
+fi
+
+
+echo "launching node"
+if [ "$NODE_STARTUP" = 'npm' ]; then
+	echo "npm install"
+	npm install
+	echo "npm start"
+	exec npm start
+	echo "node exit"
+else
+	echo "cd $APP_HOME && $NODE_STARTUP" > ./morpheus_startup.sh
+	echo "launching node script"
+	bash morpheus_startup.sh &> /morpheus/logs/app.log
+fi

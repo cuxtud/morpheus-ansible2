@@ -1,0 +1,12 @@
+---
+- hosts: all
+  vars:
+    download_url: http://download.redis.io/releases/redis-3.0.7.tar.gz
+    package_name: redis-3.0.7.tar.gz
+    file_checksum: e56b4b7e033ae8dbf311f9191cf6fdf3ae974d1c
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - redis-3_0

@@ -1,0 +1,5 @@
+---
+#	Testing the feasibility of common dependencies
+
+dependencies:
+- { role: tomcat_installer_base }

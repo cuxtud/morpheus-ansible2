@@ -1,0 +1,29 @@
+---
+# This playbook will install java.
+
+# create morpheus config directory if it doesn't exist
+- name: make morpheus config directory
+  file: path=/morpheus/config state=directory recurse=yes
+
+# create morpheus logs directory if it doesn't exist
+- name: make morpheus logs directory
+  file: path=/morpheus/logs state=directory recurse=yes
+
+# create morpheus data directory if it doesn't exist
+- name: make morpheus data directory
+  file: path=/morpheus/data state=directory recurse=yes
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: copy morpheus-welcome-all jar
+  copy: src=morpheus-welcome-all.jar dest=/app.jar mode=0777
+
+- name: copy startup txt
+  template: src=startup.txt.j2 dest=/startup.txt mode=0777
+
+- name: add java upstart
+  template: src=java.conf.j2 dest=/etc/init/java.conf mode=0644
+
+- name: add upstart override
+  template: src=java.override.j2 dest=/etc/init/java.override mode=0644

@@ -1,0 +1,65 @@
+---
+# This playbook will install percona and create db user and give permissions.
+
+- name: install perl python-pycurl python-mysqldb
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - perl
+    - python-pycurl
+    - python-mysqldb
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add percona myslq group
+  shell: groupadd -r mysql && useradd -r -g mysql mysql
+
+- name: mysql usermod
+  shell: usermod -u 1000 mysql
+  ignore_errors: yes
+
+# - name: apt prep
+#   shell: apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A
+
+# - name: get percona apt list
+#   shell: echo 'deb http://repo.percona.com/apt trusty main' > /etc/apt/sources.list.d/percona.list
+
+# - name: install percona packages
+#   apt: pkg=percona-server-server-5.6 state=present update_cache=yes
+
+# - name: install percona
+#   shell: apt-get update && apt-get install -y percona-server-server-5.6=5.6.27-76.0-1.trusty
+
+- name: add percona apt key
+  apt_key: keyserver=keys.gnupg.net id=1C4CBDCDCD2EFD2A state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add percona repository
+  apt_repository: repo='deb http://repo.percona.com/apt trusty main' state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Add Percona source repository
+  apt_repository: repo='deb-src http://repo.percona.com/apt trusty main' state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Install Percona packages
+  apt: pkg={{item}} state=present update_cache=yes
+  with_items:
+    - percona-server-server-5.6
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+# - name: configure percona
+#   shell: rm -rf /var/lib/mysql && mkdir /var/lib/mysql && sed -ri 's/^(bind-address|skip-networking)/#&/' /etc/mysql/my.cnf
+
+- name: remove mysql directory
+  file: path=/var/lib/mysql state=absent
+
+- name: create mysql directory
+  file: path=/var/lib/mysql state=directory
+
+- name: configure percona
+  shell: sed -ri 's/^(bind-address|skip-networking)/#&/' /etc/mysql/my.cnf
+
+- name: enable the mysql service
+  service: name=mysql enabled=yes state=stopped
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777

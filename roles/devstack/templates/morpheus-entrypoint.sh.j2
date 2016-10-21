@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+if [ -e "/var/opt/morpheus/vm/morpheus.env" ]; then
+	source /var/opt/morpheus/vm/morpheus.env
+fi
+
+echo "devstack init"
+
+if [ "$1" = 'devstack' ]; then
+	
+	if [ -e "/morpheus/config/local.conf" ]; then
+		cp /morpheus/config/local.conf /opt/devstack/local.conf
+	fi
+
+	cd /opt/devstack
+	./stack.sh
+
+fi

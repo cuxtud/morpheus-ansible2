@@ -1,0 +1,65 @@
+#!/bin/bash
+set -e
+
+if [ -e "/var/opt/morpheus/vm/morpheus.env" ]; then
+	source /var/opt/morpheus/vm/morpheus.env
+fi
+
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+export CATALINA_HOME=/usr/local/tomcat
+export CONFIG_HOME=/morpheus/config
+export APP_HOME=/morpheus/data
+export LOGS_HOME=/morpheus/logs
+export STAGING_HOME=$APP_HOME/staging
+export CATALINA_BASE=$APP_HOME/tomcat
+export JAVA_OPTS="-Djava.awt.headless=true"
+
+sudo chown -R morpheus-node.morpheus-node $CATALINA_HOME
+
+if [[ ! -d $CATALINA_BASE ]]; then
+	mkdir -p $CATALINA_BASE
+	mkdir -p $CATALINA_BASE/webapps
+fi
+
+if [[ ! -d $CATALINA_BASE/conf ]]; then
+	ln -s $CONFIG_HOME $CATALINA_BASE/conf
+fi
+
+if [[ ! -d $CATALINA_BASE/logs ]]; then
+	ln -s $LOGS_HOME $CATALINA_BASE/logs
+fi
+
+cp -r $CATALINA_HOME/webapps/ROOT $CATALINA_BASE/webapps/
+cp -r $CATALINA_HOME/webapps/manager $CATALINA_BASE/webapps/
+cp -r $CATALINA_HOME/webapps/host-manager $CATALINA_BASE/webapps/
+cp -r $CATALINA_HOME/conf/* $CATALINA_BASE/conf/
+
+if [[ ! -d $CATALINA_BASE/temp ]]; then
+	mkdir -p $CATALINA_BASE/temp
+fi
+
+if [[ ! -d $CATALINA_BASE/work ]]; then
+	mkdir -p $CATALINA_BASE/work
+fi
+
+if [[ ! -d $STAGING_HOME ]]; then
+	mkdir -p $STAGING_HOME
+fi
+
+sudo chown -R morpheus-node.morpheus-node $CATALINA_BASE
+sudo chown -R morpheus-node.morpheus-node $STAGING_HOME
+
+if [[ -e $STAGING_HOME/ROOT.war ]]; then
+	rm -rf $CATALINA_BASE/webapps/ROOT*
+	cp $STAGING_HOME/ROOT.war $CATALINA_BASE/webapps/
+fi
+
+if [[ ! -e $CONFIG_HOME/startup.txt ]]; then
+	cp /startup.txt $CONFIG_HOME/
+fi
+
+CATALINA_OPTS="-Dgrails.env=prod"
+export CATALINA_OPTS="$CATALINA_OPTS $(cat /morpheus/config/startup.txt)"
+
+cd $CATALINA_BASE
+exec /usr/local/tomcat/bin/catalina.sh run

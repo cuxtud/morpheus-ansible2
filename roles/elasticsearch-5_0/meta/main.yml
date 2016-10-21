@@ -1,0 +1,6 @@
+---
+#	Testing the feasibility of common dependencies
+
+dependencies:
+- { role: morpheus_base }
+- { role: java_installer_base }

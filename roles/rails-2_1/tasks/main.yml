@@ -1,0 +1,119 @@
+---
+# This playbook will install rails.
+
+- name: update apt
+  apt: update_cache=yes
+
+- name: install dependencies
+  apt: pkg={{item}} install_recommends=no state=installed
+  with_items:
+    - git
+    - wget
+    - curl
+    - perl
+    - vim
+    - g++
+    - build-essential
+    - libv8-dev
+    - bison
+    - openssl
+    - libyaml-dev
+    - autoconf
+    - automake
+    - libtool
+    - pkg-config
+    - zlib1g-dev
+    - libsqlite3-dev
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add key for passenger repo
+  apt_key: url=http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x561F9B9CAC40B2F7 id=AC40B2F7 state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add support for https
+  apt: pkg={{item}} state=installed update_cache=yes cache_valid_time=3600
+  with_items:
+  - apt-transport-https
+  - ca-certificates
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add passenger repo
+  apt_repository: repo='deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main' state=present update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install nginx passenger packages
+  apt: pkg={{item}} state=installed update_cache=true
+  with_items:
+    - nginx-extras
+    - passenger
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add app group and user
+  shell: groupadd -r app && useradd -r -g app app -d /home/app
+  ignore_errors: yes
+
+- name: app usermod
+  shell: usermod -u 1000 app
+  ignore_errors: yes
+
+- name: set environment vars
+  lineinfile: dest=/etc/environment state=present regexp='^RAILS_ENV' line='RAILS_ENV=production'
+
+- name: remove nginx sites-available default
+  file: path=/etc/nginx/sites-available/default state=absent
+
+- name: remove nginx sites-enabled default
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: remove nginx service down
+  file: path=/etc/service/nginx/down state=absent
+
+- name: create webapp directory
+  file: path=/home/app/webapp state=directory
+
+- name: create config directory
+  file: path=/home/app/config state=directory
+
+- name: create app logs directory
+  file: path=/home/app/logs state=directory
+
+- name: create my_init.d directory
+  file: path=/etc/my_init.d state=directory
+
+- name: copy nginx conf
+  template: src=nginx.conf.j2 dest=/etc/nginx/sites-enabled/webapp.conf mode=0777
+
+- name: add brightbox ruby repository
+  action: apt_repository repo=ppa:brightbox/ruby-ng-experimental
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install ruby
+  apt: pkg={{item}} state=present
+  with_items:
+    - ruby2.1
+    - ruby2.1-dev
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: install gems rails nokogiri
+  gem: name={{item}} state=latest user_install=no
+  with_items:
+    - rails
+    - nokogiri
+
+- name: install libv8 gem
+  shell: gem install libv8 -v '3.16.14.3' -- --with-system-v8
+
+- name: copy app tar
+  copy: src=app.tar dest=/app.tar mode=0777
+
+- name: copy startup script
+  template: src=startup.sh.j2 dest=/etc/my_init.d/startup.sh mode=0777
+
+- name: create morpheus entrypoint
+  template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
+
+- name: add rails upstart
+  template: src=rails.conf.j2 dest=/etc/init/rails.conf mode=0644
+
+- name: add upstart override
+  template: src=rails.override.j2 dest=/etc/init/rails.override mode=0644

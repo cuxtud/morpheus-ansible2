@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    download_url: http://archive.apache.org/dist/activemq/5.11.1/apache-activemq-5.11.1-bin.tar.gz
+    package_name: apache-activemq-5.11.1
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  roles:
+    - activemq-5_11
