@@ -14,7 +14,8 @@
 
 - name: Install elasticsearch
   apt: deb="/{{package_name}}"
-  sudo: true
+  become: yes
+  become_method: sudo
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: create morpheus entrypoint
