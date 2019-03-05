@@ -1,0 +1,12 @@
+---
+- name: This sets up an tomcat webapp
+  #hosts: ansibleclient01.local
+  tasks:
+  - name: Install tomcat packages 
+    yum:
+      name: tomcat
+      state: present
+  - name: ensure tomcat is running
+    service:
+      name: tomcat 
+      state: started

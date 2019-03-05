@@ -1,0 +1,12 @@
+---
+- name: This sets up an mysql master server
+  #hosts: ansibleclient01.local
+  tasks:
+  - name: Install mysql packages 
+    yum:
+      name: mariadb-server
+      state: present
+  - name: ensure mysql is running
+    service:
+      name: mariadb 
+      state: started
