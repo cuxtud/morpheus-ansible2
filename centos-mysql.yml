@@ -1,6 +1,9 @@
 ---
 - name: This sets up an mysql master server
   hosts: all
+  become: yes
+  become_user: root
+  become_method: sudo
   tasks:
   - name: Install mysql packages 
     yum:
