@@ -1,6 +1,6 @@
 ---
 - name: This sets up an tomcat webapp
-  #hosts: ansibleclient01.local
+  hosts: all
   tasks:
   - name: Install tomcat packages 
     yum:

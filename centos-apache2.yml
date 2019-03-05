@@ -1,6 +1,6 @@
 ---
 - name: This sets up an httpd webserver
-  #hosts: ansibleclient01.local
+  hosts: all
   tasks:
   - name: Install apache packages 
     yum:
