@@ -1,0 +1,33 @@
+---
+- name: Playbook to test delegate_to with morpheus
+  hosts: web
+  tasks:
+    - name: Touch a file on the web server
+      shell: "echo 'webserver1' > /opt/whoami"
+
+- hosts: db
+  tasks:
+    - name: Touch a file on the db server
+      shell: "echo 'dbserver1' > /opt/whoami"
+
+- hosts: web
+  tasks:
+    - name: Collect database server name
+      register: dbserver_whoami
+      shell: cat /opt/whoami
+      delegate_to: "{{ groups['db'][0] }}"
+      ignore_errors: True
+
+    - name: Store database server name
+      shell: "echo '{{ dbserver_whoami.stdout }}' > /opt/dbserver"
+
+- hosts: db
+  tasks:
+    - name: Collect webserver server name
+      register: webserver_whoami
+      shell: cat /opt/whoami
+      delegate_to: "{{ groups['web'][0] }}"
+      ignore_errors: True
+
+    - name: Store webserver server name
+      shell: "echo '{{ webserver_whoami.stdout }}' > /opt/webserver"
