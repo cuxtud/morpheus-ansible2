@@ -7,5 +7,5 @@
   tasks:
     - name: Creates directory
       file:
-        path: "{{ morpheus['customOptions']['pname'] }}"
+        path: /home/"{{ morpheus['customOptions']['pname'] }}"
         state: directory
