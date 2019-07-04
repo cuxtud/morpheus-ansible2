@@ -3,7 +3,7 @@
   gather_facts: true
   become: true
   roles:
-    - role: ansible-role-XtraDB-Cluster
+    - role: XtraDB-Cluster
       xtradb_cluster_name: "prod-customer"
       xtradb_sst_user: sstuser
       xtradb_sst_password: s3cr3t
