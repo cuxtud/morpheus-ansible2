@@ -1,19 +1,19 @@
 ---
-- name: This sets up an httpd webserver
+- name: This sets up a service by accepting values from Option Types.
   hosts: all
   become: yes
   become_user: root
   become_method: sudo
   tasks:
-  - name: Install apache packages 
+  - name: Install package
     yum:
       name: "{{ morpheus['customOptions']['fpackagename'] }}"
       state: present
-  - name: ensure httpd is running
+  - name: ensure "{{ morpheus['customOptions']['fpackagename'] }}" is running
     service:
       name: "{{ morpheus['customOptions']['fpackagename'] }}" 
       state: started
-  - name: Open port 80 for http access
+  - name: Open port for "{{ morpheus['customOptions']['fpackagename'] }}" access
     firewalld:
       service: "{{ morpheus['customOptions']['fpackagename'] }}"
       permanent: true
