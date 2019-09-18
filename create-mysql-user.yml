@@ -1,0 +1,15 @@
+---
+- name: This sets up an mysql master server
+  hosts: all
+  gather_facts: yes
+#  become: yes
+#  become_user: root
+#  become_method: sudo
+  tasks:
+  - name: Removes anonymous user account for localhost
+    mysql_user:
+      name: 'anish'
+      password: 12345
+      priv: '*.*:ALL'
+      host: localhost
+      state: present
