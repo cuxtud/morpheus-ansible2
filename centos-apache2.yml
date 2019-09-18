@@ -7,15 +7,15 @@
   tasks:
   - name: Install package
     yum:
-      name: "{{ morpheus['customOptions']['fpackagename'] }}"
+      name: httpd
       state: present
-  - name: ensure "{{ morpheus['customOptions']['fpackagename'] }}" is running
+  - name: ensure apache2 is running
     service:
-      name: "{{ morpheus['customOptions']['fpackagename'] }}" 
+      name: httpd 
       state: started
-  - name: Open port for "{{ morpheus['customOptions']['fpackagename'] }}" access
+  - name: Open port for http access
     firewalld:
-      service: "{{ morpheus['customOptions']['fpackagename'] }}"
+      service: httpd
       permanent: true
       state: enabled
   - name: Restart the firewalld service to load in the firewall changes
