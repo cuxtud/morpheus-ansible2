@@ -1,0 +1,12 @@
+---
+- name: This is to updated the network created in AHV after they are created in ACI
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Update the network config in Morpheus with the values gathered from the Operational workflow
+    shell: /usr/bin/mysql -h 10.30.21.210 -umorpheus -pc7ad41c0538d286680a79762 -B -e "use morpheus; UPDATE network set gateway="{{ morpheus['customOptions']['networkgw'] }}", dns_primary="{{ morpheus['customOptions']['networkdnsprimary'] }}", dns_secondary="{{ morpheus['customOptions']['netwworkdnssecondary'] }}", cidr="{{ morpheus['customOptions']['networkcidr'] }}" where name LIKE "{{ morpheus['customOptions']['epg'] }}";"
+    args:
+      executable: /bin/bash
