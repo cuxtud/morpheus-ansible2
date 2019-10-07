@@ -22,6 +22,6 @@
 #
 # Update the DB to mark the vlan as used.
   - name: Mark the vlan as used.
-    shell: /bin/mysql -h 10.30.20.173 -umorpheus -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; UPDATE vlan_capture set status="used", anp=\""{{ morpheus['customOptions']['fanpname'] }}"\", epg=\""{{ morpheus['customOptions']['fepgname'] }}"\", app_type=\""{{ morpheus['customOptions']['fapptype'] }}"\" where vlan LIKE "{{ free_vlan }}";"
+    shell: /bin/mysql -h 10.30.20.173 -umorpheus -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; UPDATE vlan_capture set status=\""used"\", anp=\""{{ morpheus['customOptions']['fanpname'] }}"\", epg=\""{{ morpheus['customOptions']['fepgname'] }}"\", app_type=\""{{ morpheus['customOptions']['fapptype'] }}"\" where vlan LIKE "{{ free_vlan }}";"
     args:
       executable: /bin/bash
