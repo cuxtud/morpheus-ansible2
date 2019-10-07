@@ -16,7 +16,7 @@
     register: free_vlan
   
   - set_fact:
-      free_vlan={{ free_vlan.stdout[6:] }}
+      free_vlan={{ free_vlan.stdout[5:] }}
   - debug: var=free_vlan
     run_once: true
 
