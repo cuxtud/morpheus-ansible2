@@ -6,7 +6,10 @@
   become_user: root
   become_method: sudo
   tasks:
-  - name: Update the network config in Morpheus with the values gathered from the Operational workflow
-    shell: /usr/bin/mysql -h 10.30.20.173 -uroot -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; UPDATE vlan_capture set status="used", epg=\""{{ morpheus['customOptions']['fepgname'] }}"\", anp=\""{{ morpheus['customOptions']['fanpname'] }}"\", app_type=\""{{ morpheus['customOptions']['fapptype'] }}"\" where vlan LIKE \""{{ morpheus['results']['vlan'] }}"\";"
-    args:
-      executable: /bin/bash
+  #- name: Update the network config in Morpheus with the values gathered from the Operational workflow
+  #  shell: /usr/bin/mysql -h 10.30.20.173 -uroot -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; UPDATE vlan_capture set status="used", epg=\""{{ morpheus['customOptions']['fepgname'] }}"\", anp=\""{{ morpheus['customOptions']['fanpname'] }}"\", app_type=\""{{ morpheus['customOptions']['fapptype'] }}"\" where vlan LIKE \""{{ morpheus['results']['vlan'] }}"\";"
+  #  args:
+  #    executable: /bin/bash
+  
+  - debug: 
+      msg: "{{ morpheus['results']['vlan'] }}"
