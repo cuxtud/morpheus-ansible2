@@ -11,5 +11,15 @@
   #  args:
   #    executable: /bin/bash
   
-  - debug: 
-      msg: "{{ morpheus['results']['vlan'] }}"
+  - name: Get the next available VLAN
+    shell: /bin/mysql -h 10.30.20.173 -uroot -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; select vlan from vlan_capture where status like 'unused' limit 1;"
+    register: free_vlan
+  
+  - set_fact:
+      free_vlan={{ free_vlan.stdout }}
+  - debug: var=free_vlan
+    run_once: true
+    
+      
+ # - debug: 
+  #    msg: "{{ morpheus['results']['vlan'] }}"
