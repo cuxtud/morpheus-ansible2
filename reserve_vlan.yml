@@ -1,12 +1,12 @@
 ---
-- name: Update DB to reserve the next unused VLAN
+- name: Get the next unused VLAN, run the tasks for aci rest api and then update the db with the values as used.
   hosts: all
   gather_facts: yes
   become: yes
   become_user: root
   become_method: sudo
   tasks:
-  
+
   - name: Get the next available VLAN
     shell: /bin/mysql -h 10.30.20.173 -umorpheus -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; select vlan from vlan_capture where status like 'unused' limit 1;"
     register: free_vlan
@@ -16,4 +16,12 @@
   - debug: var=free_vlan
     run_once: true
 
-
+#
+#
+# All the ACI tasks here
+#
+# Update the DB to mark the vlan as used.
+  - name: Mark the vlan as used.
+    shell: -h 10.30.20.173 -umorpheus -p"{{ lookup('cypher','secret=secret/renmysqlpass') }}" -B -e "use vlan_capture; UPDATE vlan_capture set staus="used", anp=\""{{ morpheus['customOptions']['fanpname'] }}"\", epg=\""{{ morpheus['customOptions']['fepgname'] }}"\", app_type=\""{{ morpheus['customOptions']['fapptype'] }}"\" where vlan LIKE "{{ free_vlan }}";"
+    args:
+      executable: /bin/bash
