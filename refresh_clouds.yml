@@ -8,12 +8,12 @@
   tasks:
   - name: Refresh the clouds
     uri:
-      url: https://sandbox.morpheusdata.com/api/zones/2
+      url: https://sandbox.morpheusdata.com/api/zones/{{ item }}
       HEADER_Content-Type: "application/json"
       HEADER_Authorization: "Bearer 77937dc9-000c-4d70-b3db-0af0096c27b6"
       method: PUT
       body: "{{ lookup('file','update_cloud.json') }}"
       body_format: json
-      with_items:
+    with_items:
         - 2
         - 32
