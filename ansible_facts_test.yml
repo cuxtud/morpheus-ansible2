@@ -6,4 +6,5 @@
   become_user: root
   become_method: sudo
   tasks:
-    - debug: {{ ansible_default_ipv4.interface }}
+    - debug: 
+        msg: The inteface name is {{ ansible_default_ipv4.interface }}
