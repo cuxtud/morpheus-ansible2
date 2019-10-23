@@ -1,0 +1,9 @@
+---
+- name: Get the next unused VLAN, run the tasks for aci rest api and then update the db with the values as used.
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    - debug: {{ ansible_default_ipv4.interface }}
