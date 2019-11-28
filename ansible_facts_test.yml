@@ -8,4 +8,5 @@
 
     - debug:
         msg: "This is the value of typeahead {{ item }}"
-    with_items: "{{ morpheus['customOptions']['fmultiple'] }}"
+    with_items: 
+      - "{{ morpheus['customOptions']['fmultiple'] }}"
