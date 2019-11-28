@@ -7,4 +7,7 @@
         msg: The inteface name is {{ ansible_default_ipv4.interface }}
 
     - debug:
-        msg: This is the value of typeahead {{ morpheus['customOptions']['fmultiple'][0] }}
+        msg: This is the value of typeahead {{ item }}
+    with_items:
+        - {{ morpheus['customOptions']['fmultiple'][0] }}
+        - {{ morpheus['customOptions']['fmultiple'][1] }}
