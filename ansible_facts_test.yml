@@ -5,3 +5,6 @@
   tasks:
     - debug: 
         msg: The inteface name is {{ ansible_default_ipv4.interface }}
+
+    - name:
+        msg: This is the value of typeahead {{ morpheus['customOptions']['fmultiple'] }}
