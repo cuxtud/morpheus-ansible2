@@ -1,0 +1,13 @@
+---
+- name: This is to updated the network created in AHV after they are created in ACI
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Add a user
+    user:
+      name: "{{ user_name }}"
+      password: "{{ lookup('cypher','secret=password/testuser') }}"
+      state: present
