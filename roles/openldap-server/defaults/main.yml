@@ -1,0 +1,11 @@
+---
+# defaults file for ansible-role-test-openldap-server
+
+temp_dir: /tmp/test-openldap-server
+ldap_http_port: 389
+ldap_https_port: 636
+clean_all: true
+ssl: false
+ssl_ca_cert: ''
+ssl_cert: ''
+ssl_private_key: ''

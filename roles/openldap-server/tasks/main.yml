@@ -1,0 +1,135 @@
+---
+# tasks file for ansible-role-test-openldap-server
+
+ - name: Create {{temp_dir}}
+   file:
+     path={{temp_dir}}
+     state=directory
+
+ - name: Install OpenLDAP packages and necessary packages
+   package:
+    name: "{{item}}"
+    state: present
+   with_items:
+    - openldap
+    - compat-openldap
+    - openldap-clients
+    - openldap-servers
+    - openldap-devel
+
+ - name: Stop OpenLDAP Server
+   systemd:
+    name: slapd
+    state: stopped
+   when: clean_all 
+
+ - name: List OpenLDAP Files
+   command: "ls /var/lib/ldap"
+   register: ldap_files
+   when: clean_all 
+
+ - name: Remove OpenLDAP Data
+   file: path="/var/lib/ldap/{{item}}" state=absent force=true
+   with_items:
+    - "{{ldap_files.stdout_lines}}"
+   when: clean_all 
+   
+ - name: Start OpenLDAP Server
+   systemd:
+    name: slapd
+    state: started
+    enabled: True
+
+ - name: Get RootPW for openLDAP
+   shell: "slappasswd -s redhat"
+   register: ldap_root_rw
+
+ - name: Set RootPW as var
+   set_fact:
+    ROOT_PW: "{{ldap_root_rw.stdout}}"
+
+ - name: Copy db.ldif file to {{temp_dir}}
+   template: src="db.ldif.j2" dest={{temp_dir}}/db.ldif
+
+ - name: Modify ldap with db.ldif
+   shell: ldapmodify -Y EXTERNAL  -H ldapi:/// -f {{temp_dir}}/db.ldif
+
+ - name: Copy monitor.ldif to {{temp_dir}}
+   template: src="monitor.ldif.j2" dest={{temp_dir}}/monitor.ldif
+
+ - name: Modify ldap with monitor.ldif
+   shell: ldapmodify -Y EXTERNAL  -H ldapi:/// -f {{temp_dir}}/monitor.ldif
+
+ - name: Apply SSL
+   block:
+    - name: Copy certs.ldif to {{temp_dir}}
+      template: src="certs.ldif.j2" dest={{temp_dir}}/certs.ldif
+
+    - name: Copy Cert to /etc/openldap/certs/
+      copy: src={{ssl_cert}} dest=/etc/openldap/certs/{{ssl_cert|basename}} owner=ldap group=ldap
+
+    - name: Copy CA Cert to /etc/openldap/certs
+      copy: src={{ssl_ca_cert}} dest=/etc/openldap/certs/{{ssl_ca_cert|basename}} owner=ldap group=ldap 
+
+    - name: Copy Private key to /etc/openldap/certs
+      copy: src={{ssl_private_key}} dest=/etc/openldap/certs/{{ssl_private_key|basename}} owner=ldap group=ldap
+
+    - name: Add ldaps:// into /etc/sysconfig/slapd
+      lineinfile:
+       path: /etc/sysconfig/slapd
+       regexp: 'ldap:\/\/\/'
+       line: 'SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"'
+
+    - name: Modify ldap with certs.ldif
+      shell: ldapmodify -Y EXTERNAL  -H ldapi:/// -f {{temp_dir}}/certs.ldif
+
+    - name: Start OpenLDAP Server
+      systemd:
+       name: slapd
+       state: restarted
+      when: ssl
+   
+ - name: Test LDAP server
+   shell: slaptest -u
+   when: ssl
+
+ - name: Check if cosine/nis/inetorgperson data exist(1)
+   shell: "ldapsearch -Y EXTERNAL -H ldapi:/// -b \"cn=schema,cn=config\" |egrep '^cn(.*cosine|.*nis|.*inetorgperson)'> ldapsearch_cosine_nis_inet"
+   ignore_errors: yes
+
+ - name: Check if cosine/nis/inetorgperson data exist(2)
+   shell: "cat ldapsearch_cosine_nis_inet|wc -l"
+   register: default_data_exist
+
+ - name: Setup ldap with default ldapmorpheusdata ldif files
+   copy: src=/usr/share/openldap-servers/DB_CONFIG.ldapmorpheusdata dest=/var/lib/ldap/DB_CONFIG remote_src=yes 
+
+ - name: Change UID/GID of /var/lib/ldap/*
+   file:
+    path: /var/lib/ldap
+    owner: ldap
+    group: ldap
+    recurse: yes
+
+ - name: Add cosine/nis/inetoragperson ldif to ldap server
+   shell: ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/{{item}}
+   with_items:
+     - cosine.ldif
+     - nis.ldif
+     - inetorgperson.ldif
+   when: default_data_exist.stdout|int < 3
+
+ - name: Copy base.ldif to {{temp_dir}} > this is the default user/group data
+   copy: src=base.ldif dest="{{temp_dir}}/base.ldif"
+   
+ - name: Add the default user/group data with base.ldif 
+   shell: ldapadd -x -w redhat -D "cn=read-only-admin,dc=ldapmorpheusdata,dc=com" -f {{temp_dir}}/base.ldif 
+
+ - name: Copy user-passwd.ldif to {{temp_dir}}
+   copy: src=users-passwd.ldif dest="{{temp_dir}}/users-passwd.ldif"
+
+ - name: Modify pw of users
+   shell: ldapadd -x -w redhat -D "cn=read-only-admin,dc=ldapmorpheusdata,dc=com" -f {{temp_dir}}/users-passwd.ldif
+
+# - name: Firewalld add rule for ldap
+#

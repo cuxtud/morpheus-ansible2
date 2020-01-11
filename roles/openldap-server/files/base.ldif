@@ -1,0 +1,84 @@
+
+# ldapmorpheusdata.com
+dn: dc=ldapmorpheusdata,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: ldapmorpheusdata.com
+dc: ldapmorpheusdata
+
+# Group - People
+dn: ou=People,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: People
+ou: Marketing
+
+# Group - Groups
+dn: ou=Groups,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: Groups
+
+# Group - Groups-> Administrators
+dn: cn=Administrators,ou=Groups,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: groupOfNames
+member: cn=Sue Jacobs,ou=People,dc=ldapmorpheusdata,dc=com
+member: cn=Pete Minsky,ou=People,dc=ldapmorpheusdata,dc=com
+cn: Administrators
+
+# Group - Groups-> Developers
+dn: cn=Developers,ou=Groups,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: groupOfNames
+member: cn=Jooho Lee,ou=People,dc=ldapmorpheusdata,dc=com
+cn: Developers
+
+# Person - People -> Jooho
+dn: cn=Jooho Lee,ou=People,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Jooho Lee
+givenName: Jooho
+sn: Lee
+ou: People
+ou: Development
+uid: jlee
+
+# Person - People -> Pete Minsky
+dn: cn=Pete Minsky,ou=People,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Pete Minsky
+givenName: Pete
+sn: Minsky
+ou: People
+ou: Marketing
+uid: pminsky
+
+# Person - People -> Sue Jacobs
+dn: cn=Sue Jacobs,ou=People,dc=ldapmorpheusdata,dc=com
+changetype: add
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Sue Jacobs
+givenName: Sue
+sn: Jacobs
+ou: People
+ou: Marketing
+uid: sjacobs
+
+

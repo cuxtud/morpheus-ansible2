@@ -1,0 +1,14 @@
+dn: cn=Pete Minsky,ou=People,dc=ldapmorpheusdata,dc=com
+changetype: modify
+replace: userPassword
+userPassword: redhat
+
+dn: cn=Sue Jacobs,ou=People,dc=ldapmorpheusdata,dc=com
+changetype: modify
+replace: userPassword
+userPassword: redhat
+
+dn: cn=Jooho Lee,ou=People,dc=ldapmorpheusdata,dc=com
+changetype: modify
+replace: userPassword
+userPassword: redhat
