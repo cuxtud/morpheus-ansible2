@@ -60,8 +60,8 @@
  - name: Modify ldap with monitor.ldif
    shell: ldapmodify -Y EXTERNAL  -H ldapi:/// -f {{temp_dir}}/monitor.ldif
 
- #- name: Apply SSL
- #  block:
+ - name: Apply SSL
+   block:
  #   - name: Copy certs.ldif to {{temp_dir}}
  #     template: src="certs.ldif.j2" dest={{temp_dir}}/certs.ldif
 
