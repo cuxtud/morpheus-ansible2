@@ -41,13 +41,13 @@
     state: present
 
 - name: slurp file
-  slurp:
-    src: /home/ips
+  command: /home/ips
   register: remote_file
   
-- name: Read
+- name: readloop
   debug: 
-    msg: "{{ remote_file['content'] | b64decode }}"    
+    msg: "{{ item }}"
+  loop: "{{ remote_file.stdout_lines }}"
 
 #- name: add zookeeper group and user
 #  shell: groupadd -r zookeeper && useradd -r -g zookeeper zookeeper -d /var/lib/zookeeper
