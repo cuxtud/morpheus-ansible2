@@ -1,8 +1,8 @@
 ---
-- name: This sets up an tomcat webapp
+- name: Read contents of a file
   hosts: all
   become: yes
   become_user: root
   become_method: sudo
   tasks:
-  - debug: msg="the file contents are {{lookup('file', '/tmp/all_ips') }}"
+  - debug: msg="the file contents are {{ lookup('file', '/tmp/all_ips') }}"
