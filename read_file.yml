@@ -5,7 +5,6 @@
   become_user: root
   become_method: sudo
   tasks:
-  #- debug: msg="the file contents are {{ lookup('file', '/home/ips') }}"
   - name: slurp file
     slurp:
       src: /home/ips
