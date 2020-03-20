@@ -7,7 +7,7 @@ templateLoader = jinja2.FileSystemLoader(searchpath="/tmp")
 templateEnv = jinja2.Environment(loader=templateLoader)
 TEMPLATE_FILE = "all_ips"
 template = templateEnv.get_template(TEMPLATE_FILE)
-{% for server in template.render %}
+{% for server in {{ remote_file['content'] | b64decode }} %}
 server.{{ loop.index }}={{ server }}:2888:3888
 {% endfor %}
 autopurge.snapRetainCount=3

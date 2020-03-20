@@ -39,7 +39,15 @@
     group: zookeeper
     home: /var/lib/zookeeper
     state: present
-    
+
+- name: slurp file
+  slurp:
+    src: /home/ips
+  register: remote_file
+  
+- name: Read
+  debug: 
+    msg: "{{ remote_file['content'] | b64decode }}"    
 
 #- name: add zookeeper group and user
 #  shell: groupadd -r zookeeper && useradd -r -g zookeeper zookeeper -d /var/lib/zookeeper
