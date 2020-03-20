@@ -13,5 +13,5 @@
   - name: Read
     debug: 
       fc: "{{ remote_file['content'] | b64decode }}"
-      var: fc
+      var: "{{ fc }}"
       
