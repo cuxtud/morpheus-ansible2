@@ -32,7 +32,7 @@
   shell: groupadd -r zookeeper && useradd -r -g zookeeper zookeeper -d /var/lib/zookeeper
 
 - name: zookeeper usermod
-  shell: usermod -u 1000 zookeeper
+  shell: usermod -u zookeeper
   ignore_errors: yes
 
 - name: make zookeeper directories
