@@ -70,7 +70,7 @@
   template: src=morpheus-entrypoint.sh.j2 dest=/entrypoint.sh mode=0777
 
 - name: add zookeeper upstart
-  template: src=zookeeper.conf.j2 dest=/etc/init/zookeeper.conf mode=0644
+  template: src=zookeeper.conf.j2 dest=/etc/init.d/zookeeper.conf mode=0644
 
 - name: add upstart override
   template: src=zookeeper.override.j2 dest=/etc/init/zookeeper.override mode=0644
