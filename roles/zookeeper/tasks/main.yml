@@ -73,4 +73,4 @@
   template: src=zookeeper.conf.j2 dest=/etc/init.d/zookeeper.conf mode=0644
 
 - name: add upstart override
-  template: src=zookeeper.override.j2 dest=/etc/init/zookeeper.override mode=0644
+  template: src=zookeeper.override.j2 dest=/etc/init.d/zookeeper.override mode=0644
