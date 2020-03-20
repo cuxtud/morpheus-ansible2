@@ -12,5 +12,5 @@
   
   - name: Read
     debug: 
-      msg: "{{ print(remote_file['content'] | b64decode) }}"
+      msg: "{{ remote_file['content'] | b64decode }}"
       
