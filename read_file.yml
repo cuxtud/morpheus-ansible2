@@ -19,7 +19,7 @@
 
 - name: Read
   debug:
-    msg: "{{ ip_file }}"
+    msg: "{{ remote_file }}"
 
 - name: readloop
   debug: 
