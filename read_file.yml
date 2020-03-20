@@ -5,4 +5,12 @@
   become_user: root
   become_method: sudo
   tasks:
-  - debug: msg="the file contents are {{ lookup('file', '/home/ips') }}"
+  #- debug: msg="the file contents are {{ lookup('file', '/home/ips') }}"
+  - name: slurp file
+    slurp:
+      src: /home/ips
+    register: remote_file
+  
+  - name: Read
+    debug: 
+      msg: "{{ remote_file['content'] | b64decode }}"
