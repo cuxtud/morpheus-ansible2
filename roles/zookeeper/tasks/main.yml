@@ -41,7 +41,7 @@
     state: present
 
 - name: slurp file
-  command: /home/ips
+  command: /tmp/ips
   register: remote_file
   
 - name: readloop
