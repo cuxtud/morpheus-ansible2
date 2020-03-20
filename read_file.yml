@@ -12,4 +12,5 @@
   
   - name: Read
     debug: 
-      msg: "{{ remote_file['content'] | b64decode }}"
+      #msg: "{{ remote_file['content'] | b64decode }}"
+      msg: "{{ remote_file }}"
