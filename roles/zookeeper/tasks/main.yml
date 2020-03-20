@@ -28,12 +28,23 @@
 - name: make morpheus directories
   shell: mkdir -p /tmp/zookeeper && mkdir -p /morpheus/logs && mkdir -p /morpheus/data
 
-- name: add zookeeper group and user
-  shell: groupadd -r zookeeper && useradd -r -g zookeeper zookeeper -d /var/lib/zookeeper
+- name: Add zookeeper user and group
+  group:
+    name: zookeeper
+    state: present
+  user:
+    name: zookeeper
+    group: zookeeper
+    home: /var/lib/zookeeper
+    state: present
+    
 
-- name: zookeeper usermod
-  shell: usermod -u zookeeper
-  ignore_errors: yes
+#- name: add zookeeper group and user
+#  shell: groupadd -r zookeeper && useradd -r -g zookeeper zookeeper -d /var/lib/zookeeper
+
+#- name: zookeeper usermod
+ # shell: usermod -u zookeeper
+  #ignore_errors: yes
 
 - name: make zookeeper directories
   shell: mkdir /var/lib/zookeeper && chown -R zookeeper:zookeeper /var/lib/zookeeper && cp /opt/zookeeper/conf/* /tmp/zookeeper/
