@@ -13,15 +13,11 @@
   #- name: Read
   #  debug: 
   #    msg: "{{ remote_file['content'] | b64decode }}"
-- name: slurp file
-  command: /tmp/ips
-  register: remote_file
+  - name: slurp file
+    command: /tmp/ips
+    register: remote_file
 
-- name: Read
-  debug:
-    msg: "{{ remote_file }}"
-
-- name: readloop
-  debug: 
-    msg: "{{ item }}"
-  loop: "{{ remote_file.stdout_lines }}"  
+  - name: readloop
+    debug: 
+      msg: "{{ item }}"
+    loop: "{{ remote_file.stdout_lines }}"  
