@@ -3,7 +3,7 @@ dataDir=/var/lib/zookeeper
 clientPort=2181
 initLimit=5
 syncLimit=2
-{% for server in "{{ morpheus['instance']['internalip'] }}" %}
+{% for server in {{ morpheus['instance']['internalip'] }} %}
 server.{{ loop.index }}={{ server }}:2888:3888
 {% endfor %}
 autopurge.snapRetainCount=3
