@@ -28,10 +28,12 @@
 - name: make morpheus directories
   shell: mkdir -p /tmp/zookeeper && mkdir -p /morpheus/logs && mkdir -p /morpheus/data
 
-- name: Add zookeeper user and group
+- name: Add zookeeper group
   group:
     name: zookeeper
     state: present
+
+- name: Add zookeeper user
   user:
     name: zookeeper
     group: zookeeper
