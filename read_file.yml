@@ -14,7 +14,7 @@
   #  debug: 
   #    msg: "{{ remote_file['content'] | b64decode }}"
   - name: slurp file
-    command: /tmp/ips
+    command: cat /tmp/ips
     register: remote_file
 
   - name: readloop
