@@ -1,3 +1,4 @@
+# This would tranfer a 200mb file from git to the destination windows server. This is to test morpheus CDN
 ---
 - name: Transfer a file
   hosts: all
