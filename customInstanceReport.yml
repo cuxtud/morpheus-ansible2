@@ -16,7 +16,7 @@
       #  query: select name, date_created, cores_per_socket, status, plan_id, max_cores, provision_zone_id, max_memory, max_storage, created_by_id from instance
         #named_args:
         # instance_name: aa
-      command: mysql --user=morpheus --password=e920bc9fb0659a5257df814c morpheus --host=127.0.0.1 --execute="SELECT stuff from stuff_table"
+      command: /bin/mysql --user=morpheus --password=e920bc9fb0659a5257df814c morpheus --host=127.0.0.1 --execute="select name, date_created, cores_per_socket, status, plan_id, max_cores, provision_zone_id, max_memory, max_storage, created_by_id from instance"
       register: query
       check_mode: no
       changed_when: False
