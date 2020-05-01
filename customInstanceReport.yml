@@ -1,0 +1,15 @@
+---
+- name: Custom report based on Instance Summary report
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Select query to test_db with named_args
+    mysql_query:
+      login_db: morpheus
+      query: SELECT id, name FROM instance WHERE name like %(instance_name)s
+      named_args:
+        instance_name: aa
+  
