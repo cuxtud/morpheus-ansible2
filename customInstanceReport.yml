@@ -9,7 +9,11 @@
   - name: Select query to test_db with named_args
     mysql_query:
       login_db: morpheus
-      query: SELECT id, name FROM instance WHERE name like %(instance_name)s
-      named_args:
-        instance_name: aa
+      login_host: 10.30.20.164
+      login_user: morpheus
+      login_password: 
+      #query: SELECT id, name FROM instance WHERE name like %(instance_name)s
+      query: select name, date_created, cores_per_socket, status, plan_id, max_cores, provision_zone_id, max_memory, max_storage, created_by_id from instance
+      #named_args:
+       # instance_name: aa
   
