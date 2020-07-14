@@ -1,0 +1,38 @@
+---
+- name: This sets up an tomcat webapp
+  hosts: all
+
+  tasks:
+  - name: Create GMSA Account
+    win_shell: |
+      $gmsaaccount = '{{ morpheus['customOptions']['SQLServiceAccount'] }}'
+      $gmsaaccount = $gmsaaccount.ToUpper()
+
+      $gmsaaccount = ($gmsaaccount.split('\'))[1]
+      $gmsaaccount = ($gmsaaccount).Replace('$','')
+      $gmsagroupname = (($gmsaaccount.Split('\'))[1]).Replace('GMSA$','GRP')
+      $domain = '{{ morpheus['customOptions']['SiteDomainName'] }}'
+      $gmsafqdn = (($gmsaaccount.Split('\'))[1]).Replace('$','.')+$domain
+      $hostname = '{{ morpheus['Containter']['Hostname'] }}'
+ 
+      New-ADGroup -Name $gmsagroupname -SamAccountName $gmsagroupname -GroupCategory Security -GroupScope DomainLocal -Description $gmsagroupname -path ((Get-ADOrganizationalUnit -Filter 'Name -like "*GMSA*"').DistinguishedName)
+      Add-ADGroupMember -Identity $gmsagroupname -Members ((Get-ADComputer $hostname).SamAccountName)
+
+      If ($domain -ne "iom.mgsops.com") {New-ADServiceAccount -name $gmsaaccount -DNSHostname $gmsafqdn -PrincipalsAllowedToRetrieveManagedPassword "$gmsagroupname"}
+      Else{New-ADServiceAccount -Path "CN=Managed Service Accounts,DC=IOM,DC=MGSOPS,DC=com" -name $gmsaaccount -DNSHostname $gmsafqdn -PrincipalsAllowedToRetrieveManagedPassword "$gmsagroupname"}
+      loop:  
+       - { domain: 'AIT', jumpbox: '10.10.212.62' }
+       - { domain: 'BBE', jumpbox: '10.93.4.41' }
+       - { domain: 'CIL', jumpbox: '10.66.4.59' }       
+       - { domain: 'GIC', jumpbox: '10.70.4.64' }
+       - { domain: 'IOA', jumpbox: '10.82.4.97' }
+       - { domain: 'IOM', jumpbox: '10.72.4.33' }
+       - { domain: 'MAL', jumpbox: '10.40.4.133' }    
+       - { domain: 'MIT', jumpbox: '10.240.4.28' }
+      when: "( item.domain|lower ) in ( morpheus['customOptions']['SiteDomainName']|lower )"    
+      delegate_to: "{{ item.jumpbox }}"
+      vars:
+        ansible_connection: winrm
+        ansible_port: 5985
+        ansible_winrm_transport: ntlm
+        ansible_winrm_server_cert_validation: ignore
