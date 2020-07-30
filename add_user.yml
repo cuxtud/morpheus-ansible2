@@ -1,5 +1,5 @@
 ---
-- name: This is to updated the network created in AHV after they are created in ACI
+- name: This is to add user on instances
   hosts: all
   gather_facts: yes
   become: yes
@@ -9,5 +9,5 @@
   - name: Add a user
     user:
       name: "{{ morpheus['customOptions']['fusername'] }}"
-      password: "{{ lookup('cypher','secret=password/testuser') }}"
+      password: "{{ morpheus['customOptions']['fpassword'] }}"
       state: present
