@@ -3,10 +3,13 @@
   hosts: all
   gather_facts: yes
   tasks:
-    - debug: 
-        msg: The inteface name is {{ ansible_default_ipv4.interface }}
+    #- debug: 
+    #    msg: The inteface name is {{ ansible_default_ipv4.interface }}
 
+    #- debug:
+    #    msg: "This is the value of typeahead {{ item }}"
+    #with_items: 
+    #  - "{{ morpheus['customOptions']['fmultiple'][0] }}"
+    
     - debug:
-        msg: "This is the value of typeahead {{ item }}"
-    with_items: 
-      - "{{ morpheus['customOptions']['fmultiple'][0] }}"
+        msg: the tenant is {{ morpheus['account'] }}
