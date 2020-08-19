@@ -13,3 +13,4 @@
     
     - debug:
         msg: the tenant is {{ morpheus['account'] }}
+        msg: Output of task 1 is {{ morpheus['results']['taskone'] }}
