@@ -5,4 +5,4 @@
     - debug:
         msg: "{{ item }}"
       loop: 
-        - "{{ hostvars[inventory_hostname]['morpheus'] | to_nice_yaml }}"
+        - "{{ hostvars[inventory_hostname]['morpheus']['morpheus'] | to_nice_yaml }}"
