@@ -1,0 +1,6 @@
+---
+- hosts: all
+  gather_facts: true
+  tasks:
+    - debug:
+        msg: "This is from task 1 {{ hostvars[inventory_hostname]['morpheus']['morpheus']['applianceUrl'] | to_nice_yaml }}"
