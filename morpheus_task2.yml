@@ -3,4 +3,4 @@
   gather_facts: true
   tasks:
     - debug:
-        msg: "This is from task 2 which is running output of task  one {{ ['morpheus']['results']['ansibleTaskOne'] | to_nice_yaml }}"
+        msg: "This is from task 2 which is running output of task  one {{ morpheus['results']['ansibleTaskOne'] }}"
