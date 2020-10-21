@@ -1,3 +1,10 @@
 ---
-- hosts: all
-  roles: LocalUser
+- name: This is to add user on instances
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  roles: 
+    - LocalUser
