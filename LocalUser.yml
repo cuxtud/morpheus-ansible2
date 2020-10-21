@@ -1,10 +1,7 @@
 ---
-- name: This is to add user on instances
+- name: Local OS User
   hosts: all
-  gather_facts: yes
-  become: yes
-  become_user: root
-  become_method: sudo
-
-  roles: 
-    - LocalUser
+  tasks:
+  - name: Local User Playbook
+    include_role:
+      name: LocalUser
