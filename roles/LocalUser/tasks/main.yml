@@ -1,0 +1,32 @@
+# tasks file can include smaller files if warranted
+- name: Create/Update Windows Local user.
+  no_log: true
+  win_user:
+    name: "{{ LocalUser_user }}"
+    description: "Provisioned via Morpheus {{ ansible_date_time.iso8601 }}"
+    password: "{{ LocalUser_windows_password }}"
+    state: present
+    groups:
+      - Administrators
+  when:
+    - ansible_os_family == "Windows"
+- name: Create/Update Linux Local user.
+  user:
+    name: "{{ LocalUser_user }}"
+    comment: 'Provisioned via Morpheus'
+    password: "{{ LocalUser_linux_password }}"
+    shell: "/bin/bash"
+    groups:
+      - users
+  when:
+    - ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+- name: Add user "{{ LocalUser_user }}" to sudo
+  lineinfile:
+    path: "/etc/sudoers.d/{{ LocalUser_user }}"
+    line: '"{{ LocalUser_user }}" ALL=(ALL) ALL'
+    state: present
+    mode: 0440
+    create: yes
+    validate: 'visudo -cf %s'    
+  when:
+    - ansible_os_family == "RedHat" or ansible_os_family == "Debian"

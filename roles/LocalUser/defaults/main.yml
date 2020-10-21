@@ -1,0 +1,6 @@
+# Default lower priority variables for this role
+LocalUser_user: "LocalAdminUser"
+#LocalUser_windows_password: "{{ morpheus['customOptions']['fuserPassword'] }}"
+#LocalUser_linux_password: "{{ morpheus['customOptions']['fuserPassword'] | password_hash('sha512')}}"
+LocalUser_windows_password: "{{ lookup('cypher','secret=password/{{LocalUser_user}}') }}"
+LocalUser_linux_password: "{{ lookup('cypher','secret=password/{{LocalUser_user}}') | password_hash('sha512')}}"
