@@ -1,10 +1,11 @@
 ---
 - name: This is to add user on instances
+  hosts: all
   tasks:
   - name: Create pool
     bigip_pool:
       state: present
-      name: my-pool
+      name: anishtest
       partition: Common
       lb_method: least-connections-member
       slow_ramp_time: 120
