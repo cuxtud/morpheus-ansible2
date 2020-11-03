@@ -1,13 +1,20 @@
 ---
-- name: Create pool
-  bigip_pool:
-    state: present
-    name: my-pool
-    partition: Common
-    lb_method: least-connections-member
-    slow_ramp_time: 120
-    provider:
-      server: 10.30.32.31
-      user: admin
-      password: admin
-  delegate_to: 127.0.0.1
+- name: This is to add user on instances
+  hosts: all
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Create pool
+    bigip_pool:
+      state: present
+      name: my-pool
+      partition: Common
+      lb_method: least-connections-member
+      slow_ramp_time: 120
+      provider:
+        server: 10.30.32.31
+        user: admin
+        password: admin
+    delegate_to: 127.0.0.1
