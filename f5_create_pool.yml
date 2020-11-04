@@ -1,6 +1,10 @@
 ---
 - name: This is to add user on instances
-  hosts: all
+  hosts: localhost
+
+  collections:
+  - f5networks.f5_module
+
   tasks:
   - name: Create pool
     bigip_pool:
@@ -14,5 +18,6 @@
         user: admin
         password: admin
         validate_certs: no
+        server_port: 8443
     delegate_to: localhost
     
