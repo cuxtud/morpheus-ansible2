@@ -1,6 +1,6 @@
 ---
 - name: This is to add user on instances
-  hosts: localhost
+  
   tasks:
   - name: Create pool
     bigip_pool:
