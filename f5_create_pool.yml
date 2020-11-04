@@ -1,6 +1,6 @@
 ---
 - name: This is to add user on instances
-  hosts: 127.0.0.1
+  hosts: all
   tasks:
   - name: Create pool
     bigip_pool:
@@ -13,4 +13,6 @@
         server: 10.30.32.31
         user: admin
         password: admin
+        validate_certs: no
+    delegate_to: localhost
     
