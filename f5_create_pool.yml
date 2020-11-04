@@ -13,4 +13,4 @@
         server: 10.30.32.31
         user: admin
         password: admin
-    delegate_to: 127.0.0.1
+    
