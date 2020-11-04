@@ -17,4 +17,3 @@
         validate_certs: no
         server_port: 8443
     delegate_to: localhost
-    
