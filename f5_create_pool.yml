@@ -2,8 +2,8 @@
 - name: This is to add user on instances
   hosts: localhost
 
-  collections:
-  - f5networks.f5_module
+#  collections:
+#  - f5networks.f5_module
 
   tasks:
   - name: Create pool
