@@ -12,5 +12,11 @@
         msg: "{{ item }}"
       loop: 
         - "{{ hostvars[inventory_hostname]['morpheus'] | to_nice_yaml }}"
+
+#The below will print the first vm name of an instance with multiple vm's
+    - debug:
+        msg: "{{ item }}"
+      loop:
+        - "{{ morpheus['instance']['container'][0]['name'] }}"
       
         
