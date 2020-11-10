@@ -18,5 +18,11 @@
         msg: "{{ item }}"
       loop:
         - "{{ morpheus['instance']['containers'][0]['name'] }}"
+
+# Iteration for items in array
+    - debug:
+        msg: "First node in instance is {{ items.0.name }} with IP {{ items.0.internalIP }}"
+      loop:
+        - "{{ query('subelements'), {{ morpheus['instance']['containers'] }} }}"
       
         
