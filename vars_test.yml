@@ -17,6 +17,6 @@
     - debug:
         msg: "{{ item }}"
       loop:
-        - "{{ morpheus['instance']['container'][0]['name'] }}"
+        - "{{ morpheus['instance']['containers'][0]['name'] }}"
       
         
