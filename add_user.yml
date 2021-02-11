@@ -27,7 +27,7 @@
   
   - name: Add sudoers users to wheel group
     user:
-      name: "{{ morpheus['customOptions']['fusername'] }}"
+      name: "{{ morpheus['customOptions']['username'] }}"
       groups: wheel
       append: yes
       state: present
