@@ -8,8 +8,8 @@
   tasks:
   - name: Add a user
     user:
-      name: "{{ morpheus['customOptions']['fusername'] }}"
-      password: "{{ morpheus['customOptions']['fpassword'] }}"
+      name: "{{ morpheus['customOptions']['username'] }}"
+      password: "{{ lookup('cypher','secret=password/12/userpass') }}"
       state: present
   
   - name: Make sure we have a 'wheel' group
