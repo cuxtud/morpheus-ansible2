@@ -6,4 +6,5 @@
     - debug:
         #msg: the tenant is {{ morpheus['account'] }}
         #msg: Output of instance name var {{ morpheus['instance']['name'] }}
+        msg: "{{ morpheus['instance']['name'] }}
         msg: "{{ morpheus['results']['taskOne'] }}"
