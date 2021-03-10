@@ -6,6 +6,7 @@
 
   tasks:
     - apt: "name={{ item }} state=installed"
+      state: present
       with_items:
         - git
         - wget
