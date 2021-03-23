@@ -1,4 +1,4 @@
 - hosts: all
   gather_facts: true
   roles:
-    - apache_centos
+    - apache
