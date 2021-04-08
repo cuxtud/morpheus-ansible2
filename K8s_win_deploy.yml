@@ -3,7 +3,7 @@
 
   tasks:
     - name: create dirs
-      file:
+      win_file:
         path: C:\CGI\Scripts
         state: directory
 
