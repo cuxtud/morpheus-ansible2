@@ -1,9 +1,11 @@
 ---
-- name: This is to add user on instances
+- name: This will pause the tasks for 20 minutes and then complete
   hosts: all
   gather_facts: yes
   become: yes
   become_user: root
   become_method: sudo
   tasks:
-  - name: Add a user
+  - name:  Pause for 20minutes
+    pause:
+      minutes: 20
