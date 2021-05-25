@@ -9,4 +9,6 @@
   - name: the final countdown of 1200 seconds
     debug:
       msg: "{{item}} seconds to detonation"
+      pause:
+        seconds: 1
     with_sequence: start=1200 end=0 stride=-1
