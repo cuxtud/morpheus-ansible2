@@ -6,6 +6,7 @@
   become_user: root
   become_method: sudo
   tasks:
-  - name:  Pause for 20minutes
-    pause:
-      minutes: 20
+  - name: the final countdown of 1200 seconds
+    debug:
+      msg: "{{item}} seconds to detonation"
+    with_sequence: start=1200 end=0 stride=-1
