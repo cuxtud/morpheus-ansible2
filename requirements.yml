@@ -2,4 +2,8 @@
   name: java
 
 - src: https://github.com/geerlingguy/ansible-role-apache
+<<<<<<< HEAD
   name: apache
+=======
+  name: apache
+>>>>>>> 86ab7aa8ab5d488e7e4023fc65849082bd6e4fb1

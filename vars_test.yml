@@ -27,11 +27,6 @@
       loop:
         - "{{ query('subelements'), containers, 'containers' }}"
 
-# Iteration for items in array
-    - debug:
-        morpheus: "{{ morpheus }}"
-        msg: "{{ morpheus }}"
-      loop:
-        - "{{ query('subelements'), morpheus, 'morpheus' }}"
+
       
         
