@@ -8,9 +8,9 @@
   tasks:
   - name: Refresh the clouds
     uri:
-      url: https://dcra-vm-cmpdev-1.ren.pt/api/zones/{{ item }}
+      url: https://applianceurl/api/zones/{{ item }}
       HEADER_Content-Type: "application/json"
-      HEADER_Authorization: "Bearer ce9400e5-c145-4b16-a583-8a743f57d192"
+      HEADER_Authorization: "Bearer xxx"
       method: PUT
       body: "{{ lookup('file','update_cloud.json') }}"
       body_format: json

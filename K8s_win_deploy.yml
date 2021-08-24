@@ -1,0 +1,24 @@
+---
+- hosts: all
+
+  tasks:
+    - name: create dirs
+      win_file:
+        path: C:\CGI\Scripts
+        state: directory
+
+    - name: Download Kubernetes preparation script  
+      win_uri:
+        url: https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/PrepareNode.ps1
+        method: GET
+        dest: c:\CGI\Scripts\PrepareNode.ps1
+    
+    - name: Prepare Windows for Kubernetes
+      win_shell: C:\CGI\Scripts\PrepareNode.ps1 -KubernetesVersion v1.18.0
+
+    - name: Download Kubernetes commandline tool
+      win_uri:
+        url: https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/windows/amd64/kubectl.exe
+        method: GET
+        dest: c:\CGI\Scripts\kubectl.exe
+
