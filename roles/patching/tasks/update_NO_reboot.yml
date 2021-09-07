@@ -1,0 +1,397 @@
+---
+# tasks file for patching
+########################################################################################
+# [ update_reboot.yml]                                                                 #
+# --                                                                                   #
+# Author:  Ahmed Hagag (ahmed.thagag@gmail.com) @cz                                       #
+#                                                                                      #
+########################################################################################
+#  Purpose : Playbook to perform 'yum update' on selected hosts.                       #
+#            ALL the packages with updates on the enabled repositories will be updated.#
+#            This playbook INCLUDES KERNEL and system packages like glibc, systemd,    #
+#            and more.The playbook will REBOOT hosts ONLY if the KERNEL is UPDATED.    #
+#                                                                                      #
+########################################################################################
+### Supported OS:  RHEL and Centos                                                     #
+########################################################################################
+- name: "set patching_time"
+  set_fact:
+    timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+  delegate_to: localhost
+  run_once: true
+#############################################################
+#          Check if the system not RH or Centos             #
+#############################################################
+- block:
+  - name: "Check if not a RHEL or Centos server"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | Not a RHEL or Centos server"
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.FAILED.{{ timestamp }}"
+      create: yes
+    when: ansible_distribution not in supported_distros
+    delegate_to: localhost
+
+  - name: "Fail host if is not RHEL or Centos "
+    fail:
+      msg: "HOSTNAME: {{ inventory_hostname }} | Not a RHEL or Centos server"
+    when: ansible_distribution not in supported_distros
+
+#############################################################
+#          Check if Redhat sunscription is Valid            #
+#############################################################
+- name: "Check the Redhat subscription status is valid"
+  shell:  subscription-manager status |  grep "Status:" | awk '{print $NF}'
+  changed_when: false
+  when: ansible_distribution == "RedHat"
+  register: echo_results
+
+
+- name: "Please check the RH subscription first"
+  fail:
+    msg:  "The system is not Subscribed"
+  when: ansible_distribution == "RedHat" and echo_results.stdout != "Current"
+
+#########################################################
+#                    Pre-update Check                   #
+#########################################################
+#    Collect the system distribution and version        #
+#########################################################
+- name: set pre update os_info
+  set_fact:
+    os_info_pre_update:
+      distribution: "{{ ansible_distribution }}"
+      distribution_major_version: "{{ ansible_distribution_major_version }}"
+      distribution_release: "{{ ansible_distribution_release }}"
+      distribution_version: "{{ ansible_distribution_version }}"
+
+- name: "current OS version information before the update"
+  blockinfile:
+    block:  |
+      "HOSTNAME: {{ inventory_hostname }} version before the update:"
+      "      distribution: {{ os_info_pre_update.distribution  }} "
+      "      distribution_major_version: {{ os_info_pre_update.distribution_major_version }}"
+      "      distribution_release: {{ os_info_pre_update.distribution_release }}"
+      "      distribution_version: {{ os_info_pre_update.distribution_version }}"
+    dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+    create: yes
+    marker: " "
+  delegate_to: localhost
+
+######################################################################################
+
+- name: "Return service state information"
+  service_facts:
+
+- name: " Collect a list of the mounted device "
+  set_fact:
+    dvs: "{{ ansible_mounts | map(attribute='device') | list }}"
+
+- name: "Register all the system interface "
+  debug:
+    msg: "{{ item }}"
+  loop: "{{ ansible_interfaces }}"
+  when:
+    - hostvars[inventory_hostname]['ansible_%s' | format(item)]['ipv4'] is defined
+    - hostvars[inventory_hostname]['ansible_%s' | format(item)]['active'] == true
+    - hostvars[inventory_hostname]['ansible_%s' | format(item)]['device'] != 'lo'
+  register: NIC_interface
+
+- name: "get the IP address for each interface" 
+  debug:   
+    msg: "{{ hostvars[inventory_hostname]['ansible_%s' | format(item.item)]['ipv4']['address'] }}"
+  loop: "{{ NIC_interface['results'] }}"
+  when: item.skip_reason is not defined
+  register: NIC_IP
+###########################################################
+- name: " Check SELinux Status before the patching "
+  set_fact:
+    selinux_status: "{{ ansible_selinux['mode'] }}"
+############################################################################################
+# yum_update                                                                               # 
+# Description: Perform yum update on selected hosts with NO reboot exluding the below      #
+#               ( kernel*, glibc*, linux-firmware*, systemd*, dbus*, udev* )               #
+#              will be created and subsequent tasks will reboot the host.                  #
+# Note:        Check with your App teams if any  package should be excluded                #
+#              due to App dependencies on fixed versionsand use the default/main.yml file  #
+############################################################################################
+#           Update the system       #
+#####################################
+- name: "Install Latest yum packages"
+  yum:
+    name: "*"
+    state: latest
+    exclude: kernel*, glibc*, linux-firmware*, systemd*, dbus*, udev*
+  when: ansible_distribution in supported_distros
+  register: yum_result
+
+#- name: "Log yum update progress"
+#  lineinfile:
+#    line: "DEBUG|HOSTNAME: {{ inventory_hostname }} | updating | {{ item }}"
+#    dest: "{{ local_dir }}/update.{{ inventory_hostname }}.yum.{{ timestamp }}"
+#    create: yes
+#  ignore_errors: yes
+#  delegate_to: localhost
+#  loop: "{{ yum_result.changes.updated }}"
+
+- block:
+  - name: "Log if yum update failed"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | yum update failed, PLEASE CHECK THE SERVER"
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.yum.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+  - name: "Yum failed"
+    debug:
+      msg: "HOSTNAME: {{ inventory_hostname }} | yum update failed, PLEASE CHECK THE SERVER"
+  when: yum_result is defined and yum_result is failed
+
+- block:
+  - name: "Log if nothing to update"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} |  Nothing to update."
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.yum.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+  - name: "nothing to update"
+    debug:
+      msg: "HOSTNAME: {{ inventory_hostname }} |  Nothing to update."
+  when: yum_result is defined and yum_result is succeeded and not yum_result.changed
+
+- block:
+  - name: "Log if yum update success"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | yum update succeeded."
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.yum.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+  - name: "Update is done "
+    debug:
+      msg: "HOSTNAME: {{ inventory_hostname }} | yum update succeeded."
+  when: yum_result is defined and yum_result is succeeded and yum_result.changed
+
+
+
+############################################################   
+#                     Post-Update Check                    #
+############################################################
+#   Make sure the services from the pre check are running  #
+#   and send the output result to a report file.           #      
+############################################################
+
+- block:
+  - name: " Make sure the services from the pre-check are running "
+    service:
+      name: "{{ item }}"
+      state: started
+    when: ansible_facts.services[item]['state'] == "running"
+    loop: "{{ ansible_facts.services.keys() }}"
+    register: start_failed
+###############################################################################
+# Create a report in a delegate server " LOCALHOST " in case everything is OK #
+###############################################################################
+  - name: "Creating a report when starting the services successfully done"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | {{ item }} : OK "
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+    when: ansible_facts.services[item]['state'] == "running" and start_failed is not failed
+    loop: "{{ ansible_facts.services.keys() }}"
+##############################################################################
+# Create a failed report in a delegate server " LOCALHOST "  in case there   #
+#          one or more service failed to start after the reboot              #
+##############################################################################
+  rescue:
+    - name: send Error msg if sarting service failed
+      lineinfile:
+        line: "HOSTNAME: {{ inventory_hostname }} | {{ item.item }} : KO Please check it"
+        dest: "{{ local_dir }}/update.{{ inventory_hostname }}.FAILED.{{ timestamp }}"
+        create: yes
+      delegate_to: localhost
+      when:
+        - item.skipped is not defined
+        - item.state is not defined
+        - item.failed == true
+      loop: "{{ start_failed.results }}"
+####################################################################################
+#
+#
+####################################################################################
+#           Validate the FSs are mounted after reboot                              #
+####################################################################################
+- block:
+  - name: " Check if the FS is mounted "
+    shell:  df -hP | grep "{{ item }}"
+    changed_when: false
+    register: fs_checked
+    loop: "{{ dvs }}"
+################################################################################
+## Create a report in a delegate server " LOCALHOST " in case everything is OK #
+################################################################################
+  - name: "Creating a report when all the FSs are mounted successfully"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | {{ item.stdout }} : MOUNTED "
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+    when: item.rc == 0
+    loop: "{{ fs_checked.results }}"
+
+###############################################################################
+## Create a failed report in a delegate server " LOCALHOST "  in case there   #
+##          one or more FSs failed to mount after the reboot                  #
+###############################################################################
+  rescue:
+    - name: "send Error msg if mounting failed"
+      lineinfile:
+        line: "HOSTNAME: {{ inventory_hostname }} | {{ item.item }} : ****NOT MOUNTED***** "
+        dest: "{{ local_dir }}/update.{{ inventory_hostname }}.FAILED.{{ timestamp }}"
+        create: yes
+      delegate_to: localhost
+      when: item.rc != 0
+      loop: "{{ fs_checked.results }}"
+
+
+    
+
+
+#- name: "Validate the mount points"
+#  mount:
+#    path: "{{ item.mount }}"
+#    src:  "{{ item.device }}"
+#    state:  mounted
+#    fstype: "{{ item.fstype }}"
+#  ignore_errors:  yes
+#   #opts: "{{ item.options }}"
+#  loop: "{{ mount_points.ansible_mounts }}"
+#  when: 
+#    - item.mount != "/"
+#    - item.mount != "/boot"
+
+#####################################################################
+##    Collect the system distribution and version after update      #
+#####################################################################
+- name: "Gather facts after update"
+  setup:
+    filter: ansible_distribution*
+
+####################################################################
+#          Validate the network interfaces status and IPs           #
+#####################################################################
+- block:
+  - name: "Assert that the interface status is active"
+    assert:
+      that: "{{ hostvars[inventory_hostname]['ansible_%s' | format(item.item)]['active'] }} == true "
+    loop: "{{ NIC_interface['results'] }}"
+
+  - name: "Creating a report when the interfaces are active"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | interface {{ item.item }} : OK  "
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+    loop: "{{ NIC_interface['results'] }}"
+  when: item.skip_reason is not defined
+
+  rescue:
+    - name: " Send error msg if one or more interface are not active"
+      lineinfile:
+        line: "HOSTNAME: {{ inventory_hostname }} | interface {{ item.item }} : ****NOT ACTIVE**** "
+        dest: "{{ local_dir }}/update.{{ inventory_hostname }}.FAILED.{{ timestamp }}"
+        create: yes
+      delegate_to:  localhost
+
+- block:
+  - name: "Assert that the interface IP address does not change"
+    assert:
+      that:  item.msg in  ansible_all_ipv4_addresses  
+    loop: "{{ NIC_IP['results'] }}"
+
+  - name: "Creating a report when the interface IP is OK"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | interface {{ item.item.item }} : {{ item.msg }} : OK  "
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+      create: yes
+    delegate_to:  localhost
+    loop: "{{ NIC_IP['results'] }}"
+  when: item.skip_reason is not defined
+
+  rescue:
+    - name: "Send error msg if IP address has changed"
+      lineinfile:
+        line: "HOSTNAME: {{ inventory_hostname }} | interface {{ item.item.item }} :  PLEASE CHECK THE IP ADDRESS"
+        dest: "{{ local_dir }}/update.{{ inventory_hostname }}.FAILED.{{ timestamp }}"
+        create: yes
+      delegate_to: localhost
+####################################################################
+#     Make sure SELinux status does not changed after reboot       #
+#     ######################################################       #
+
+- block:
+  - name: " Assert that the SElinux status is OK "
+    assert:
+      that: ansible_selinux['mode'] == selinux_status
+
+  - name: "Creating a report when the SELinux is OK"
+    lineinfile:
+      line: "HOSTNAME: {{ inventory_hostname }} | SELinux: OK"
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+      create: yes
+    delegate_to: localhost
+
+  rescue:
+    - name: "Send error msg if SELinux status changed"
+      lineinfile:
+        line: "HOSTNAME: {{ inventory_hostname }} | ***SELinux status changed***"
+        dest: "{{ local_dir }}/update.{{ inventory_hostname }}.FAILED.{{ timestamp }}"
+        create: yes
+      delegate_to: localhost
+
+#####################################################################
+- name: "Set post update os info"
+  set_fact:
+    os_info_post_update:
+      distribution: "{{ ansible_distribution }}"
+      distribution_major_version: "{{ ansible_distribution_major_version }}"
+      distribution_release: "{{ ansible_distribution_release }}"
+      distribution_version: "{{ ansible_distribution_version }}"
+
+
+- name: "current OS version information before the update"
+  blockinfile:
+      block:  |
+        "HOSTNAME: {{ inventory_hostname }} version After the update:"
+        "      distribution: {{ os_info_post_update.distribution  }} "
+        "      distribution_major_version: {{ os_info_post_update.distribution_major_version }}"
+        "      distribution_release: {{ os_info_post_update.distribution_release }}"
+        "      distribution_version: {{ os_info_post_update.distribution_version }}"
+      dest: "{{ local_dir }}/update.{{ inventory_hostname }}.OK.{{ timestamp }}"
+      create: yes
+  delegate_to: localhost
+
+######################################################################
+#                    Show Summary Report                             #
+######################################################################
+- name: set_fact
+  set_fact:
+    final_report: "{{ local_dir }}/update.summary.{{ timestamp }}"
+
+- name: " Merge all host report files. in {{ local_dir }}/update.summary.{{ timestamp }}"
+  shell: "cat {{ item }} >> {{ local_dir }}/update.summary.{{ timestamp }}"
+  when: item != final_report
+  loop: "{{ query('fileglob', '{{ local_dir }}/update.{{ inventory_hostname }}*{{ timestamp }}') }}"
+  delegate_to: localhost
+
+- name: " Read the file {{ local_dir }}/update.summary.{{ timestamp }}"
+  shell:  "cat  {{ local_dir }}/update.summary.{{ timestamp }}"
+  delegate_to: localhost
+  register: final_report
+  run_once: true
+
+- name: "show report"
+  debug:
+    msg:
+      - "UPDATE SUMMARY"
+      - "{{ final_report.stdout_lines }}"
+  delegate_to: localhost
+  run_once: true

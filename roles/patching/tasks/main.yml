@@ -1,0 +1,14 @@
+---
+# import tasks file to initiate the patching
+- name: Defining patching Type
+  debug:
+    msg: "Patching_type: {{ Patching_type }}"
+
+- name: Importing full patching
+  import_tasks: update_with_reboot.yml
+  when: Patching_type == "KERNEL"
+
+- name: Importing NOREBOOT patching
+  import_tasks: update_NO_reboot.yml
+  when: Patching_type == "NOREBOOT"
+

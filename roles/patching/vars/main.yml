@@ -1,0 +1,8 @@
+---
+# vars file for patching
+supported_distros:
+  - RedHat
+  - CentOS
+
+
+ip_address: "{{ ansible_default_ipv4.address }}"

@@ -1,0 +1,8 @@
+---
+# defaults file for patching
+#####################################################
+# local_dir: directory in the a delegated server where to store the logs. Default: /tmp/ansible/sys-patching
+local_dir: "/tmp/ansible/sys-patching"
+
+#Patching_type: KERNEL/NOREBOOT. Default KERNEL
+Patching_type:  KERNEL
