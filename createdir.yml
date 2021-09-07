@@ -1,0 +1,11 @@
+---
+- name: This will create a dir james in /test
+  hosts: all
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    - name: Creates directory
+      file:
+        path: /tmp/james
+        state: directory
