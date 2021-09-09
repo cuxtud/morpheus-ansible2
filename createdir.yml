@@ -9,3 +9,4 @@
       file:
         path: /tmp/james
         state: directory
+      delegate_to: aaspubu1001.localdomain
