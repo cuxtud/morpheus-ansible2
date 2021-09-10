@@ -1,11 +1,11 @@
 ---
-- hosts: all
-  tasks:
-  - name: Simple select query to morpheus db
-    community.mysql.mysql_query:
-      login_user: morpheus
-      login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
-      login_host: "127.0.0.1"
-      login_db: morpheus
-      query: SELECT * FROM compute_server limit 1
-    delegate_to: localhost
+#- hosts: all
+#  tasks:
+- name: Simple select query to morpheus db
+  community.mysql.mysql_query:
+    login_user: morpheus
+    login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
+    login_host: "127.0.0.1"
+    login_db: morpheus
+    query: SELECT * FROM compute_server limit 1
+  delegate_to: localhost
