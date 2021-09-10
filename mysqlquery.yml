@@ -8,5 +8,5 @@
         login_user: "{{ lookup('cypher','secret=secret/dbuser') }}"
         login_password: "{{ lookup('cypher','secret=secret/dbpasswd') }}"
         login_host: 127.0.0.1
-        login_db: acme
-        query: SELECT * FROM orders
+        login_db: morpheus
+        query: SELECT * FROM compute_server limit 1
