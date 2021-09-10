@@ -1,6 +1,5 @@
 ---
-- name: Runs a select query on morpheus DB
-  hosts: all
+- hosts: all
   tasks:
   - name: Simple select query to acme db
     community.mysql.mysql_query:
