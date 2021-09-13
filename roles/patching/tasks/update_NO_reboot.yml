@@ -176,7 +176,7 @@
       msg: "HOSTNAME: {{ inventory_hostname }} |  Nothing to update."
   when: yum_result is defined and yum_result is succeeded and not yum_result.changed
 
-  - block:
+- block:
   - name: "Log if nothing to update, update run results in db"
     community.mysql.mysql_query:
       login_user: morpheus
