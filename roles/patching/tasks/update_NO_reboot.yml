@@ -152,7 +152,7 @@
       login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
       login_host: "127.0.0.1"
       login_db: morpheus
-      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'success',%(platform)s,%(environment)s)
+      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'failed',%(platform)s,%(environment)s)
       named_args:
         servername: "{{ inventory_hostname }}"
         createddate: "{{ timestamp }}"
@@ -183,7 +183,7 @@
       login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
       login_host: "127.0.0.1"
       login_db: morpheus
-      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'success',%(platform)s,%(environment)s)
+      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'nothing updated',%(platform)s,%(environment)s)
       named_args:
         servername: "{{ inventory_hostname }}"
         createddate: "{{ timestamp }}"
