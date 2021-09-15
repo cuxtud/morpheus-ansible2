@@ -6,7 +6,7 @@
       ansible-for-nsxt-master.nsxt_vm_tags:
         hostname: "10.32.23.8"
         username: admin
-        password: "{{ lookup('cypher','secret=secret/nsxt3') }}""
+        password: "{{ lookup('cypher','secret=secret/nsxt3') }}"
         validate_certs: False
         virtual_machine_display_name: "qa-nsxt3x-edge-02"
         remove_other_tags: False
