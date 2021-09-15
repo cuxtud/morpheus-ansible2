@@ -3,7 +3,7 @@
   gather_facts: true
   tasks:
     - name: Update Tags on VMs
-      ansible-for-nsxt-master.nsxt_vm_tags:
+      vmware.ansible_for_nsxt.nsxt_vm_tags:
         hostname: "10.32.23.8"
         username: admin
         password: "{{ lookup('cypher','secret=secret/nsxt3') }}"
