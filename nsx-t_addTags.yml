@@ -3,7 +3,7 @@
   gather_facts: true
   tasks:
     - name: Update Tags on VMs
-      nsxt_vm_tags:
+      vmware.ansible_for_nsxt.nsxt_vm_tags:
         hostname: "10.32.23.8"
         username: admin
         password: "{{ lookup('cypher','secret=secret/nsxt3') }}"
@@ -11,8 +11,6 @@
         virtual_machine_display_name: "qa-nsxt3x-edge-02"
         remove_other_tags: False
         add_tags:
-        - scope: my-scope
-          tag: my-tag
-        remove_tags_with_scope:
-        - my-scope1
+          - scope: my-scope
+            tag: my-tag
       delegate_to: localhost
