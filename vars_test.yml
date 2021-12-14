@@ -26,12 +26,3 @@
         msg: "First node in instance is {{ items.0.name }} with IP {{ items.0.internalIP }}"
       loop:
         - "{{ query('subelements'), containers, 'containers' }}"
-
-
-      
-# Iteration for items in array
-    - debug:
-        morpheus: "{{ morpheus }}"
-        msg: "{{ morpheus }}"
-      loop:
-        - "{{ query('subelements'), morpheus, 'morpheus' }}"
