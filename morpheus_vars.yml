@@ -6,5 +6,5 @@
         #morpheus: "{{ morpheus }}"
         #msg: "{{ morpheus['morpheus']}}"
         #msg: "{{ morpheus['accountNumber'] }}"
-        msg: "{{ accountNumber }}"
+        msg: "{{ morpheus['account']['accountNumber'] }}"
       
