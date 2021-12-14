@@ -1,0 +1,9 @@
+---
+- hosts: all
+  gather_facts: true
+  tasks:
+    - debug:
+        morpheus: "{{ morpheus }}"
+        msg: "{{ morpheus }}"
+      loop:
+        - "{{ query('subelements'), morpheus, 'morpheus' }}"

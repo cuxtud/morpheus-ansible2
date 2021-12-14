@@ -8,7 +8,7 @@
         username: admin
         password: "{{ lookup('cypher','secret=secret/nsxt3') }}"
         validate_certs: False
-        virtual_machine_display_name: "qa-nsxt3x-edge-02"
+        virtual_machine_display_name: "{{ morpheus['server']['hostname'] }}"
         remove_other_tags: False
         add_tags:
           - scope: my-scope
