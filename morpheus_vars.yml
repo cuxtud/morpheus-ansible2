@@ -5,5 +5,4 @@
     - debug:
         morpheus: "{{ morpheus }}"
         msg: "{{ morpheus }}"
-      loop:
-        - "{{ query('subelements'), morpheus, 'morpheus' }}"
+      
