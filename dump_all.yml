@@ -29,6 +29,10 @@
           GROUPS Variables ("groups"):
           --------------------------------
           {{ hostvars[inventory_hostname]['env'] }}
+
+          Just var:
+          --------------------------------------
+          {{ env }}
     
       debug: 
         msg: "{{ gmsg.split('\n') }}"       
