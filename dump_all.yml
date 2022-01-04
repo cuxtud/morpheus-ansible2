@@ -25,7 +25,12 @@
           HOST Variables ("hostvars"):
           --------------------------------
           {{ hostvars | to_nice_json }} 
+        
+        gmsg: |
+          GROUPS Variables ("groups"):
+          --------------------------------
+          {{ groups | to_nice_json }}
     
       debug: 
-        msg: "{{ msg.split('\n') }}"       
+        msg: "{{ gmsg.split('\n') }}"       
       tags: debug_info
