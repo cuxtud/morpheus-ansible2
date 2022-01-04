@@ -1,6 +1,6 @@
 ---
 - name: dump all
-  hosts: all
+  hosts: development
  
   tasks:
     - name: Print some debug information 
