@@ -28,7 +28,7 @@
         gmsg: |
           GROUPS Variables ("groups"):
           --------------------------------
-          {{ groups | to_nice_json }}
+          {{ group_vars | to_nice_json }}
     
       debug: 
         msg: "{{ gmsg.split('\n') }}"       
