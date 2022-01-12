@@ -1,0 +1,12 @@
+[mysqld]
+ndbcluster
+ndb-connectstring={%for host in groups['mgmt']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}:1186
+
+disable_log_bin
+
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid

@@ -1,0 +1,31 @@
+[ndbd default]
+
+NoOfReplicas=2    
+DataMemory=98M    
+
+[ndb_mgmd]
+
+hostname={%for host in groups['mgmt']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}
+
+DataDir=/var/lib/mysql-cluster  
+NodeId=1
+
+[ndbd]
+
+HostName={{ hostvars[groups['data'][0]].ansible_eth0.ipv4.address }}
+
+NodeId=2                        
+DataDir=/usr/local/mysql/data   
+
+[ndbd]
+
+HostName={{ hostvars[groups['data'][1]].ansible_eth0.ipv4.address }}
+
+NodeId=3                       
+DataDir=/usr/local/mysql/data  
+
+[mysqld]
+
+HostName={%for host in groups['sql']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}    
+
+NodeId=4                               

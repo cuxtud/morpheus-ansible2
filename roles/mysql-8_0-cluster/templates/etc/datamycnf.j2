@@ -1,0 +1,6 @@
+[mysqld]
+ndbcluster
+ndb-connectstring={%for host in groups['mgmt']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}
+
+[mysql_cluster]
+ndb-connectstring={%for host in groups['mgmt']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}

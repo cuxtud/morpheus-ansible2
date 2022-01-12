@@ -1,0 +1,224 @@
+---
+# This playbook will install mysql Cluster on Oracle Linux 8.4 
+#  On all nodes
+- name: add mysql group
+  group:
+    name: mysql
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data:sql:mgmt')
+
+- name: add mysql user
+  user:
+    name: mysql
+    comment: Mysql User
+    group: mysql
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data:sql:mgmt')
+
+- name: Stop firewalld services 
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data:sql:mgmt')
+
+# On all nodes. EL8-based systems such as RHEL8 and Oracle Linux 8 include a MySQL module that is enabled by default. Unless this module is disabled, it masks packages provided by MySQL repositories
+- name: Disable default mysql module
+  command: yum module disable mysql -y
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data:sql:mgmt')
+
+# On data nodes 
+- name: Download the rpm on data node if oracle linux 8
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-data-node-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data')
+
+- name: Install the package  
+  yum:
+    name: /var/tmp/mysql-cluster-community-data-node-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data')
+
+# On sql nodes
+- name: Install libaio and net tools on SQL and MGMT nodes
+  dnf: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - libaio
+    - net-tools
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: download client plugins on SQL nodes
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-client-plugins-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Install client plugins on SQL nodes
+  yum:
+    name: /var/tmp/mysql-cluster-community-client-plugins-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Download common on SQL nodes
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-common-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Install common on SQL nodes
+  yum:
+    name: /var/tmp/mysql-cluster-community-common-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Download client libs on SQL nodes
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-libs-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Install client libs on SQL nodes
+  yum:
+    name: /var/tmp/mysql-cluster-community-libs-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Download client on SQL nodes
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-client-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Install client on SQL nodes
+  yum:
+    name: /var/tmp/mysql-cluster-community-client-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql:mgmt')
+
+- name: Download the sql node rpm on SQL Node
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-server-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql')
+
+- name: Install the SQL rpm on SQL node
+  yum:
+    name: /var/tmp/mysql-cluster-community-server-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql')
+
+# On Management Node
+- name: Download management server rpm
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-management-server-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+- name: Install Management server rpm
+  yum:
+    name: /var/tmp/mysql-cluster-community-management-server-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+- name: Download ndbClient Library
+  get_url:
+    url: https://dev.mysql.com/get/Downloads/MySQL-Cluster-8.0/mysql-cluster-community-ndbclient-8.0.25-1.el8.x86_64.rpm
+    dest: /var/tmp
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+- name: Install ndbClient Library
+  yum:
+    name: /var/tmp/mysql-cluster-community-ndbclient-8.0.25-1.el8.x86_64.rpm
+    disable_gpg_check: yes
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+# Setup the hosts file on all nodes
+- name: Generate /etc/hosts file
+  template:
+    src: etc/hosts.j2
+    dest: /etc/hosts
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data:sql:mgmt')
+
+# Disable ipv6 on the mgmt server
+- name: Disable ipv6 on mgmt server
+  command: sysctl -w net.ipv6.conf.all.disable_ipv6=1
+  ignore_errors: yes
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+# On SQL node update my.cnf
+- name: Generate /etc/my.cnf file
+  template:
+    src: etc/sqlmycnf.j2
+    dest: /etc/my.cnf
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql')
+
+# On Data nodes update my.cnf
+- name: Generate /etc/my.cnf file
+  template:
+    src=etc/datamycnf.j2
+    dest=/etc/my.cnf
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data')
+
+# create log dirs on data nodes
+- name: Create log dirs on data nodes
+  file:
+    path: /usr/local/mysql/data/
+    state: directory
+    recurse: yes
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data')
+
+# On mgmt server create dir and update config.ini
+- name: Create dir and set the permission
+  file:
+    path: /var/lib/mysql-cluster
+    state: directory
+    recurse: yes
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+- name: Create config.ini
+  template:
+    src: configini.j2
+    dest: /var/lib/mysql-cluster/config.ini
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+
+# Start the services on mgmt server
+- name: Start inital config of ndb_mgmt
+  command: ndb_mgmd --initial -f /var/lib/mysql-cluster/config.ini --ndb-nodeid=1 --ndb-connectstring="nodeid=1;host={{hostvars[groups['mgmt'][0]].ansible_eth0.ipv4.address }}:1186"
+  when: inventory_hostname in lookup ('inventory_hostnames', 'mgmt')
+
+# Sleep for 20secs
+- name: Sleep for 20secs
+  pause:
+    minutes: 1
+
+# Start the service on data nodes
+- name: start ndbd
+  command: ndbd
+  when: inventory_hostname in lookup ('inventory_hostnames', 'data')
+
+# Start the service on sql node
+- name: Mysql stop
+  service:
+    name: mysqld
+    state: stopped
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql')
+
+- name: Mysqld start
+  service:
+    name: mysqld
+    state: started
+  when: inventory_hostname in lookup ('inventory_hostnames', 'sql')
+
+# verify if datanodes are connected
+# verify is sql node is connected
