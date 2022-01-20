@@ -1,0 +1,7 @@
+ETCD_LISTEN_PEER_URLS="http://{%for host in groups['etcd']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}:2380,http://127.0.0.1:7001"
+ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:2379, http://{%for host in groups['etcd']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}:2379"
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://{%for host in groups['etcd']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}:2380"
+ETCD_INITIAL_CLUSTER="etcd0=http://{%for host in groups['etcd']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}:2380,"
+ETCD_ADVERTISE_CLIENT_URLS="http://{%for host in groups['etcd']%}{{hostvars[host].ansible_eth0.ipv4.address}}{% if not loop.last %},{% endif %}{% endfor %}:2379"
+ETCD_INITIAL_CLUSTER_TOKEN="cluster1"
+ETCD_INITIAL_CLUSTER_STATE="new"

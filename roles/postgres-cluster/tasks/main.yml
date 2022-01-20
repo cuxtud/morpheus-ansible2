@@ -1,0 +1,122 @@
+---
+# This playbook will install Postgres Cluster on Ubuntu 20.04 
+# There would be postgres and patroni running on servers 1 and 2, a server running etcd and a server running HAProxy. HAproxy is used for Load balancing
+#  InstallPostgreSQL 
+- name: install postgresql
+  apt:
+    name:
+     - postgresql
+     - postgresql-contrib
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Stop postgresql service on a
+  service:
+    name: postgresql
+    state: stopped
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Create symlink for patroni
+  command: ln -s /usr/lib/postgresql/12/bin/* /usr/sbin/
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+# Installing Patroni
+
+- name: Before installing Patroni we need to install Python and other dependencies
+  apt:
+    name:
+     - python3-pip
+     - python3-dev
+     - libpq-dev
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Upgrade pip
+  pip:
+    name: pip
+    executable: pip3
+    state: latest
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Install patroni using pip
+  pip:
+    name: 
+     - patroni
+     - python-etcd
+     - psycopg2
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Install etcd
+  apt:
+    name: etcd
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'etcd')
+
+- name: Install HAproxy
+  apt:
+    name: haproxy
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'haproxy')
+
+- name: Generate /etc/default/etcd file
+  template:
+    src: etcd.j2
+    dest: /etc/default/etcd
+  when: inventory_hostname in lookup ('inventory_hostnames', 'etcd')
+
+- name: restart etcd
+  service:
+    name: etcd
+    state: started
+    enabled: yes
+  when: inventory_hostname in lookup ('inventory_hostnames', 'etcd')
+
+- name: Configure patroni
+  template:
+    src: patroniyml.j2
+    dest: /etc/patroni.yml
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Create dir for patroni data and set ownership and permissions
+  file:
+    path: /data/patroni
+    state: directory
+    recurse: yes
+    owner: postgres
+    group: postgres
+    mode: u+rwx,g-rwx,o-rwx
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Configure patroni service
+  template:
+    src: patroniservice.j2
+    dest: /etc/systemd/system/patroni.service
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Systemctl daemon reload
+  systemd:
+    state: restarted
+    daemon_reloaded: yes
+    name:
+      - patroni
+      - postgresql
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+
+- name: Install haproxy
+  apt:
+    name: haproxy
+    state: present
+  when: inventory_hostname in lookup ('inventory_hostnames', 'haproxy')
+
+- name: Configure haproxy
+  template:
+    src: haproxy.j2
+    dest: /etc/haproxy/haproxy.cfg
+  when: inventory_hostname in lookup ('inventory_hostnames', 'haproxy')
+
+- name: restart haproxy
+  service:
+    name: haproxy
+    state: started
+  when: inventory_hostname in lookup ('inventory_hostnames', 'haproxy')
