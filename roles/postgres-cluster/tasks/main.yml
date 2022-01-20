@@ -18,6 +18,7 @@
 
 - name: Create symlink for patroni
   command: ln -s /usr/lib/postgresql/12/bin/* /usr/sbin/
+  ignore_errors: yes
   when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 # Installing Patroni
