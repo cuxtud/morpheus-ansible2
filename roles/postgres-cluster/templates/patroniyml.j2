@@ -24,8 +24,8 @@ bootstrap:
 
     pg_hba:
     - host replication replicator 127.0.0.1/32 md5
-    - host replication replicator {{ hostvars[groups['patroni_postgres'][0]].ansible_eth0.ipv4.address }}/0 md5
-    - host replication replicator {{ hostvars[groups['patroni_postgres'][1]].ansible_eth0.ipv4.address }}/0 md5
+    - host replication replicator {{ hostvars[groups['patroni'][0]].ansible_eth0.ipv4.address }}/0 md5
+    - host replication replicator {{ hostvars[groups['postgres'][1]].ansible_eth0.ipv4.address }}/0 md5
     - host all all 0.0.0.0/0 md5
 
     users:
