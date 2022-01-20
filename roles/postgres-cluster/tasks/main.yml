@@ -98,7 +98,7 @@
 - name: Systemctl daemon reload
   systemd:
     state: restarted
-    daemon_reloaded: yes
+    daemon_reload: yes
     name:
       - patroni
       - postgresql
