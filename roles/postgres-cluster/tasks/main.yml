@@ -8,17 +8,17 @@
      - postgresql
      - postgresql-contrib
     state: present
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Stop postgresql service on a
   service:
     name: postgresql
     state: stopped
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Create symlink for patroni
   command: ln -s /usr/lib/postgresql/12/bin/* /usr/sbin/
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 # Installing Patroni
 
@@ -29,14 +29,14 @@
      - python3-dev
      - libpq-dev
     state: present
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Upgrade pip
   pip:
     name: pip
     executable: pip3
     state: latest
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Install patroni using pip
   pip:
@@ -45,7 +45,7 @@
      - python-etcd
      - psycopg2
     state: present
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Install etcd
   apt:
@@ -76,7 +76,7 @@
   template:
     src: patroniyml.j2
     dest: /etc/patroni.yml
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Create dir for patroni data and set ownership and permissions
   file:
@@ -86,13 +86,13 @@
     owner: postgres
     group: postgres
     mode: u+rwx,g-rwx,o-rwx
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Configure patroni service
   template:
     src: patroniservice.j2
     dest: /etc/systemd/system/patroni.service
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Systemctl daemon reload
   systemd:
@@ -101,7 +101,7 @@
     name:
       - patroni
       - postgresql
-  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni_postgres')
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Install haproxy
   apt:
