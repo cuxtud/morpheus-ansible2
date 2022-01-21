@@ -107,7 +107,7 @@
 
 - name: start postgres service 
   service:
-    name: postgres
+    name: postgresql
     state: started
   when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
