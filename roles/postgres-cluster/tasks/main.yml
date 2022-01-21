@@ -99,11 +99,15 @@
   systemd: daemon_reload=yes
   when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
-- name: start patroni and postgres services
+- name: start patroni service 
   service:
-    name:
-     - patroni
-     - postgresql
+    name: patroni
+    state: started
+  when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
+
+- name: start postgres service 
+  service:
+    name: postgres
     state: started
   when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
