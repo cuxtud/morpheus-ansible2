@@ -96,9 +96,7 @@
   when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: Systemctl daemon reload
-  systemd:
-    state: restarted
-    daemon_reload: yes
+  systemd: daemon_reload=yes
   when: inventory_hostname in lookup ('inventory_hostnames', 'patroni:postgres')
 
 - name: start patroni and postgres services
