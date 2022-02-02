@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  gather_facts: yes
+
+  tasks:
+    - name: Copy file to datastore using delegate_to
+      community.vmware.vsphere_copy:
+        hostname: "{{ lookup('cypher','secret=secret/vcentreName') }}"
+        username: "{{ lookup('cypher','secret=secret/vCenterUser') }}"
+        password: "{{ lookup('cypher','secret=secret/vcenterPassword01') }}"
+        validate_certs: no
+        datacenter: "labs-den-dc2-demo"
+        src: /var/images/morpheus-archives/f2d4cf25eb32/CentOS-8.2.2004-x86_64-minimal.iso
+        datastore: ESXi-DC2-DEMO-LUN02
+        path: ISO
+        timeout: 60
+      delegate_to: localhost
