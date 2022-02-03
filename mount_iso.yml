@@ -10,7 +10,7 @@
         password: "{{ lookup('cypher','secret=secret/vcenterPassword01') }}"
         validate_certs: no
         datacenter: "labs-den-dc2-demo"
-        src: /var/images/morpheus-archives/f2d4cf25eb32/CentOS-8.2.2004-x86_64-minimal.iso
+        src: /var/images/morpheus-archives/9991500aaf8b/ubuntu-20.04.3-live-server-amd64.iso
         datastore: ESXi-DC2-DEMO-LUN02
         path: ISO
         timeout: 60
