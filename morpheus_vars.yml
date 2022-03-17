@@ -9,7 +9,11 @@
         msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
         msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
     
-    - debug:
-        local_acount: "{{ morpheus['account'] }}"
-        msg: "{{ local_account }}"
+    - name: "set morpheus account name"
+      set_fact:
+        local_account: "{{ morpheus['account'] }}"
       delegate_to: localhost
+
+
+    - debug:
+        msg: "{{ local_acount }}"
