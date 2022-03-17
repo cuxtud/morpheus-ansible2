@@ -10,5 +10,6 @@
         msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
     
     - debug:
-        msg: "{{ morpheus['account'] }}"
+        local_acount: "{{ morpheus['account'] }}"
+        msg: "{{ local_account }}"
       delegate_to: localhost
