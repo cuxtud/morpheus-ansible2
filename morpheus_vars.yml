@@ -10,4 +10,4 @@
         msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
         msg: "{{ morpheus['morpheus']['account'] }}"
         #msg: "{{ morpheus['instance']['platform'] }}"
-      when: "{{ morpheus['instance']['container']['server']['osType'] }}" == "linux"
+      #when: "{{ morpheus['instance']['container']['server']['osType'] }}" == "linux"
