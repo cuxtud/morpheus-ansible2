@@ -7,5 +7,5 @@
         #msg: "{{ morpheus['morpheus']}}"
         #msg: "{{ morpheus['accountNumber'] }}"
         msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
-        msg: "{{ morpheus['instance']['container']['server'] }}"
+        msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
         #msg: "{{ morpheus['instance']['platform'] }}"
