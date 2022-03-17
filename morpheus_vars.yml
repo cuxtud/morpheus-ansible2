@@ -8,4 +8,4 @@
         #msg: "{{ morpheus['accountNumber'] }}"
         msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
         msg: "{{ morpheus['instance']['container']['server']['platform'] }}"
-        msg: "{{ morpheus['instance']['platform'] }}"
+        #msg: "{{ morpheus['instance']['platform'] }}"
