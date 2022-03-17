@@ -8,6 +8,7 @@
         #msg: "{{ morpheus['accountNumber'] }}"
         msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
         msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
+    
+    - debug:
         msg: "{{ morpheus['user']['account'] }}"
-        #msg: "{{ morpheus['instance']['platform'] }}"
-      #when: "{{ morpheus['instance']['container']['server']['osType'] }}" == "linux"
+      delegate_to: localhost
