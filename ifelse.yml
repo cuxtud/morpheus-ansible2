@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  become: no
+
+vars:
+  - fruit: 'apples'
+
+
+tasks:
+  - name: Set a Fact based on var
+    set_fact:
+      colour_fruit: "{{ 'green' if fruit == 'apples' else 'yellow' if fruit == 'bananas' else 'unknown' }}"
+
+
+  - name: Show Fact
+  debug: var=colour_fruit
