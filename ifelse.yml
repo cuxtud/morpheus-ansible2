@@ -3,7 +3,7 @@
   become: no
 
   vars:
-    fruit: 'apples'
+    fruit: 'grapes'
 
   tasks:
     - name: Set a Fact based on var
