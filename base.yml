@@ -19,4 +19,4 @@
         - wget
         - curl
         - vim
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
