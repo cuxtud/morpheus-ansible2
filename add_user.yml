@@ -6,10 +6,13 @@
   become_user: root
   become_method: sudo
   tasks:
+  - set_fact:
+      userpass: "{{ lookup('cypher','secret=secret/userpass') }}"
+
   - name: Add a user
     user:
       name: "{{ morpheus['customOptions']['username'] }}"
-      password: "{{ lookup('cypher','secret=secret/userpass') }}"
+      password: "{{ userpass }}"
       state: present
   
   - debug:
