@@ -12,6 +12,9 @@
       password: "{{ lookup('cypher','secret=secret/userpass') }}"
       state: present
   
+  - debug:
+        msg: "{{ lookup('cypher','secret=secret/userpass') }}"
+
   - name: Make sure we have a 'wheel' group
     group:
       name: wheel
