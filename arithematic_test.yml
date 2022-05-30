@@ -4,10 +4,10 @@
 
   tasks:
     - set_fact: 
-        folder_size: 3
+        folder_size: "3"
 
     - set_fact:
-        folder_plc: "{{ folder_size  - 1 }}"
+        folder_plc: "{{ folder_size | int  - 1 }}"
     
     - debug:
         var: folder_plc
