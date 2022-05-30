@@ -10,4 +10,4 @@
         folder_plc: "{{ folder_size | int  - 1 | int }}"
     
     - debug:
-        var:  folder_plc 
+        var:  "{{ folder_plc | int }}" 
