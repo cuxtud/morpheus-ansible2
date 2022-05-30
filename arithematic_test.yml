@@ -7,7 +7,7 @@
         folder_size: "3"
 
     - set_fact:
-        folder_plc: "{{ folder_size | int  - 1 | int }}"
+        folder_plc: "{{ folder_size | int  - 1 }}"
     
     - debug:
         var:  "{{ folder_plc | int }}" 
