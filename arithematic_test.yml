@@ -8,3 +8,6 @@
 
     - set_fact:
         folder_plc: "{{ folder_size  - 1 }}"
+    
+    - debug:
+        var: folder_plc
