@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    tenantList: []
+    MHOST: "{{morpheus['customOptions']['morpheusHost']}}"
+
+  tasks:
+    - set_fact: 
+        folder_size = 3
+
+    - set_fact:
+        folder_plc={{ folder_size | int - 1 }}
