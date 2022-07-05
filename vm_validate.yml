@@ -1,10 +1,8 @@
 ---
-- name: ssr_vm | validate vm ssr
-  hosts: localhost
+- hosts: localhost
   gather_facts: false
-  no_log: "{{ g_no_log | default(false) }}"
   tasks:
-    - name: ssr_vm | automation_tasks | check allowed VM name
+    - name: ssr_vm
       assert:
         that:
           - morpheus.spec.config.vmName is regex("^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{4,15}(?<!-)$")
