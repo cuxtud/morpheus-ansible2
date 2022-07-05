@@ -5,8 +5,8 @@
     - name: ssr_vm
       assert:
         that:
-          - morpheus.spec.config.vmName is regex("^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{4,15}(?<!-)$")
-          - morpheus.spec.config.vmName | length > 0
+          - morpheus.spec.config.customOptions.vmName is regex("^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{4,15}(?<!-)$")
+          - morpheus.spec.config.customOptions.vmName | length > 0
         fail_msg: |
           SSR input checks: FAIL. Unallowed characters in the name '{{ morpheus.spec.config.vmName }}'. Verify that the following rules for VM name are followed:
             - min. 4 and max. 15 characters
@@ -17,7 +17,7 @@
     - name: ssr_vm | automation_tasks | check allowed VM password
       assert:
         that:
-          - morpheus.spec.config.vmPassword is regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
-          - morpheus.spec.config.vmPassword | length > 0
+          - morpheus.spec.config.customOptions.vmPassword is regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
+          - morpheus.spec.config.customOptions.vmPassword | length > 0
         fail_msg: "SSR input checks: FAIL. Password '{{ morpheus.spec.config.vmPassword }}' is not strong enough. Please use minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
         success_msg: "SSR input checks: Password validation passed."
