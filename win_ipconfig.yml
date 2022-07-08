@@ -1,0 +1,11 @@
+- name: Run powershell script
+  hosts: win
+  gather_facts: false
+  become_method: runas
+
+  tasks:
+    - win_command: powershell.exe -
+      args: 
+        stdin: ipconfig >> c:\ipconfig.txt
+      become: yes
+      become_user: Administrator
