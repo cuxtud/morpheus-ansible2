@@ -177,19 +177,19 @@
   when: yum_result is defined and yum_result is succeeded and not yum_result.changed
 
 - block:
-  - name: "Log if nothing to update, update run results in db"
-    community.mysql.mysql_query:
-      login_user: morpheus
-      login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
-      login_host: "127.0.0.1"
-      login_db: morpheus
-      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'nothing updated',%(platform)s,%(environment)s)
-      named_args:
-        servername: "{{ inventory_hostname }}"
-        createddate: "{{ timestamp }}"
-        platform: "{{ ansible_distribution }}"
-        environment: "{{ morpheus['instance']['instanceContext'] }}"
-    delegate_to: localhost
+  # - name: "Log if nothing to update, update run results in db"
+  #   community.mysql.mysql_query:
+  #     login_user: morpheus
+  #     login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
+  #     login_host: "127.0.0.1"
+  #     login_db: morpheus
+  #     query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'nothing updated',%(platform)s,%(environment)s)
+  #     named_args:
+  #       servername: "{{ inventory_hostname }}"
+  #       createddate: "{{ timestamp }}"
+  #       platform: "{{ ansible_distribution }}"
+  #       environment: "{{ morpheus['instance']['instanceContext'] }}"
+  #   delegate_to: localhost
   - name: "nothing to update"
     debug:
       msg: "HOSTNAME: {{ inventory_hostname }} |  Nothing to update."
@@ -209,19 +209,19 @@
   when: yum_result is defined and yum_result is succeeded and yum_result.changed
 
 - block:
-  - name: "Log if yum update success"
-    community.mysql.mysql_query:
-      login_user: morpheus
-      login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
-      login_host: "127.0.0.1"
-      login_db: morpheus
-      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'success',%(platform)s,%(environment)s)
-      named_args:
-        servername: "{{ inventory_hostname }}"
-        createddate: "{{ timestamp }}"
-        platform: "{{ ansible_distribution }}"
-        environment: "{{ morpheus['instance']['instanceContext'] }}"
-    delegate_to: localhost
+  # - name: "Log if yum update success"
+  #   community.mysql.mysql_query:
+  #     login_user: morpheus
+  #     login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
+  #     login_host: "127.0.0.1"
+  #     login_db: morpheus
+  #     query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'success',%(platform)s,%(environment)s)
+  #     named_args:
+  #       servername: "{{ inventory_hostname }}"
+  #       createddate: "{{ timestamp }}"
+  #       platform: "{{ ansible_distribution }}"
+  #       environment: "{{ morpheus['instance']['instanceContext'] }}"
+  #   delegate_to: localhost
   - name: "Update is done "
     debug:
       msg: "HOSTNAME: {{ inventory_hostname }} | yum update succeeded."
