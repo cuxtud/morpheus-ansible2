@@ -146,19 +146,19 @@
   when: yum_result is defined and yum_result is failed
 
 - block:
-  - name: "Update DB if yum failed"
-    community.mysql.mysql_query:
-      login_user: morpheus
-      login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
-      login_host: "127.0.0.1"
-      login_db: morpheus
-      query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'failed',%(platform)s,%(environment)s)
-      named_args:
-        servername: "{{ inventory_hostname }}"
-        createddate: "{{ timestamp }}"
-        platform: "{{ ansible_distribution }}"
-        environment: "{{ morpheus['instance']['instanceContext'] }}"
-    delegate_to: localhost
+  # - name: "Update DB if yum failed"
+  #   community.mysql.mysql_query:
+  #     login_user: morpheus
+  #     login_password: "{{ lookup('cypher','secret=secret/dbpass') }}"
+  #     login_host: "127.0.0.1"
+  #     login_db: morpheus
+  #     query: INSERT INTO patching (server_name, date_created, last_updated, result, os, env) VALUES (%(servername)s,%(createddate)s,%(createddate)s,'failed',%(platform)s,%(environment)s)
+  #     named_args:
+  #       servername: "{{ inventory_hostname }}"
+  #       createddate: "{{ timestamp }}"
+  #       platform: "{{ ansible_distribution }}"
+  #       environment: "{{ morpheus['instance']['instanceContext'] }}"
+  #   delegate_to: localhost
   - name: "Yum failed"
     debug:
       msg: "HOSTNAME: {{ inventory_hostname }} | yum update failed, DB Updated, please check the server"
