@@ -1,5 +1,5 @@
 - name: Run powershell script
-  hosts: win
+  hosts: all
   gather_facts: false
   become_method: runas
 
