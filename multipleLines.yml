@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: no
+
+  tasks:
+    - name: the final countdown
+      ansible.builtin.debug:
+        msg: "{{item}} seconds to detonation"
+      with_sequence: start=500 end=0 stride=-1
