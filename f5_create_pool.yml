@@ -11,9 +11,9 @@
       lb_method: least-connections-member
       slow_ramp_time: 120
       provider:
-        server: 10.30.32.31
-        user: admin
-        password: 
+        server: "{{ lookup('cypher','secret=secret/poolserver') }}"
+        user: "{{ lookup('cypher','secret=secret/pooluser') }}"
+        password: "{{ lookup('cypher','secret=secret/poolaccess') }}"
         validate_certs: no
         server_port: 8443
     delegate_to: localhost
