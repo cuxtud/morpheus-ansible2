@@ -11,7 +11,7 @@
     lb_method: least-connections-member
     slow_ramp_time: 120
     provider:
-      server: "{{ secret.host') }}"
+      server: "{{ secret.host ) }}"
       user: "{{ secret.user }}"
       password: "{{ secret.user_pass }}"
       validate_certs: no
