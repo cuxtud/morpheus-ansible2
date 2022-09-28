@@ -1,0 +1,19 @@
+---
+# tasks file for f5-secret
+- name: Read secret
+  include_vars: "defaults/secret.yml"
+
+- name: Create pool
+  bigip_pool:
+    state: present
+    name: anishtest
+    partition: Common
+    lb_method: least-connections-member
+    slow_ramp_time: 120
+    provider:
+      server: "{{ secret.host') }}"
+      user: "{{ secret.user }}"
+      password: "{{ secret.user_pass }}"
+      validate_certs: no
+      server_port: 8443
+  delegate_to: localhost
