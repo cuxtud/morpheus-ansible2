@@ -2,6 +2,6 @@
 - name: Patching the linux system using patching roles
   hosts: all
   vars:
-    Patching_type: "REBOOT"
+    Patching_type: "KERNEL"
   roles:
     - patching
