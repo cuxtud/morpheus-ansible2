@@ -4,8 +4,8 @@
 
   tasks:
   – name: Check for missing updates.
-          win_updates: state=searched
-          register: update_count
+    win_updates: state=searched
+    register: update_count
 
   – name: Install missing updates.
     win_updates:
