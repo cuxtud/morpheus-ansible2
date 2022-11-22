@@ -1,26 +1,24 @@
 ---
-- name: Patching the linux system using patching roles
-  hosts: all
+- hosts: all
 
   tasks:
   – name: Check for missing updates.
-    win_updates: 
-      state=searched
-    register: update_count
+  win_updates: state=searched
+  register: update_count
 
   – name: Install missing updates.
-    win_updates:
-      category_names:
-        – Application
-        – Connectors
-        – DefinitionUpdates
-        – DeveloperKits
-        – FeaturePacks
-        – Guidance
-        – ServicePacks
-        – Tools
-        – UpdateRollups
-        – CriticalUpdates
-        – SecurityUpdates
-    register: update_result  
- 
+  win_updates:
+    category_names:
+      – Application
+      – Connectors
+      – DefinitionUpdates
+      – DeveloperKits
+      – FeaturePacks
+      – Guidance
+      – ServicePacks
+      – Tools
+      – UpdateRollups
+      – CriticalUpdates
+      – SecurityUpdates
+  register: update_result  
+
