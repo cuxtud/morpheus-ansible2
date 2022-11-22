@@ -1,24 +1,22 @@
 ---
-- hosts: all
+# Ansible playbook to run Windows Update and restart, if required
+#
+# http://docs.ansible.com/ansible/win_updates_module.html
+# https://docs.ansible.com/ansible/win_reboot_module.html
 
+- name:  Windows Update
+  hosts: all
+  gather_facts: false
   tasks:
-  – name: Check for missing updates.
-  win_updates: state=searched
-  register: update_count
+    - name: Running Windows Update
+      win_updates:
+        category_names: ['SecurityUpdates','CriticalUpdates','UpdateRollups', 'Updates', 'DefinitionUpdates']
+      register: result
 
-  – name: Install missing updates.
-  win_updates:
-    category_names:
-      – Application
-      – Connectors
-      – DefinitionUpdates
-      – DeveloperKits
-      – FeaturePacks
-      – Guidance
-      – ServicePacks
-      – Tools
-      – UpdateRollups
-      – CriticalUpdates
-      – SecurityUpdates
-  register: update_result  
-
+    # output results
+    - debug: var=result
+    
+    # reboot only if required
+    # - win_reboot:
+    #   when: result.reboot_required
+      
