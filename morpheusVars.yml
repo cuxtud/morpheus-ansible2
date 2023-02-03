@@ -7,10 +7,9 @@
       debug:
         msg: "{{ morpheus['customOptions']['instances'] }}"
 
-    - name: Store the value of instance name in a variable
-      ansible.builtin.set_fact:
+    set_fact:
         i_name: "{{ morpheus['customOptions']['instances'].split("_")[0] }}"
-        #i_ip: "{{ morpheus['customOptions']['instances'].split("_")[0] }}"
+        i_ip: "{{ morpheus['customOptions']['instances'].split("_")[0] }}"
       
     # - name: Print the new vars
     #   debug:
