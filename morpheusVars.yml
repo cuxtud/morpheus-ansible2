@@ -19,6 +19,5 @@
       
     - name: Print the new vars
       debug:
-        msg: 
-        - "Instance name is: {{ i_name }} "
+        msg: "Instance name is: {{ i_name }} "
         # - "Instance ip is: {{ i_ip }}"
