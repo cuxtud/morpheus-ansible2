@@ -1,0 +1,20 @@
+---
+- name: Accept morpheus vars where config of morpheus is using split
+  hosts: localhost
+
+  tasks:
+    - name: Print the instance name
+      debug:
+        msg: "{{ morpheus['customOptions']['instance'] }}"
+
+    - name: Store the value of instance name in a variable
+      set_fact:
+        instance: "{{ morpheus['customOptions']['instance'] }}"
+        i_name: "{{ instance.split("_")[0] }}"
+        i_ip: "{{ instance.split("_")[1] }}"
+      
+    - name: Print the new vars
+      debug:
+        msg: 
+        - "Instance name is: {{ i_name }} "
+        - "Instance ip is: {{ i_ip }}"
