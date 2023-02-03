@@ -9,7 +9,7 @@
 
     - name: Store the value of instance name in a variable
       ansible.builtin.set_fact:
-        i_name: "{{ morpheus['customOptions']['instance'] }}"
+        i_name: "{{ morpheus['customOptions']['instances'] }}"
     # - set_fact:
     #     i_name: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
 
