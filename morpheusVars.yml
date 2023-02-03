@@ -7,11 +7,11 @@
       debug:
         msg: "{{ morpheus['customOptions']['instances'] }}"
 
-    # - name: Store the value of instance name in a variable
-    #   ansible.builtin.set_fact:
-    #     i_name: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
-    - set_fact:
+    - name: Store the value of instance name in a variable
+      ansible.builtin.set_fact:
         i_name: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
+    # - set_fact:
+    #     i_name: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
 
     # - name: Store the value of instance ip in a variable
     #   ansible.builtin.set_fact:
