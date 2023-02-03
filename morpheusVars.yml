@@ -5,16 +5,18 @@
   tasks:
     - name: Print the instance name
       debug:
-        msg: "{{ morpheus['customOptions']['instances'] }}"
+        msg: "Value from Morpheus: {{ morpheus['customOptions']['instances'] }}"
 
-    - name: Set fact  
+    - name: Store the value from moprheus to a var  
       set_fact:
-        i_name: "{{ morpheus['customOptions']['instances'].split('_') }}"
+        minstance: "{{ morpheus['customOptions']['instances'] }}"
     
-    - name: Set fact name
+    - name: Split the var with a delimeter
       set_fact:
-        i2_name: "{{ i_name.split('_') }}"
-        #i_ip: "{{ morpheus['customOptions']['instances'].split("_")[0] }}"
+        instance: "{{ minstance.split('_') }}"
+        
 
     - debug:
-        msg: "Instance name is: {{ i_name.0 }} "
+        msg: 
+        - "Instance name is: {{ instance.0 }} "
+        - "Instance ip is: {{ instance.1 }} "
