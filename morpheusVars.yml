@@ -10,6 +10,7 @@
     - name: Set fact  
       set_fact:
         i_name: "{{ morpheus['customOptions']['instances'] }}"
+        i2_name: "{{ i_name.split("_")[0] }}"
         #i_ip: "{{ morpheus['customOptions']['instances'].split("_")[0] }}"
 
     #   debug:
