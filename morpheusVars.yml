@@ -1,6 +1,6 @@
 ---
 - name: Accept morpheus vars where config of morpheus is using split
-  hosts: localhost
+  hosts: all
 
   tasks:
     - name: Print the instance name
