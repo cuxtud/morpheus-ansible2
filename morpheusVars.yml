@@ -5,7 +5,7 @@
   tasks:
     - name: Print the instance name
       debug:
-        msg: "{{ morpheus['customOptions']['instance'] }}"
+        msg: "{{ morpheus['customOptions']['instances'] }}"
 
     # - name: Store the value of instance name in a variable
     #   set_fact:
