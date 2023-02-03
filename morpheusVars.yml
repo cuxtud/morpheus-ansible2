@@ -15,9 +15,9 @@
 
     # - name: Store the value of instance ip in a variable
     #   ansible.builtin.set_fact:
-    #     i_ip: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
+    # #     i_ip: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
       
-    - name: Print the new vars
-      debug:
-        msg: "Instance name is: {{ i_name }} "
-        # - "Instance ip is: {{ i_ip }}"
+    # - name: Print the new vars
+    #   debug:
+    #     msg: "Instance name is: {{ i_name }} "
+    #     # - "Instance ip is: {{ i_ip }}"
