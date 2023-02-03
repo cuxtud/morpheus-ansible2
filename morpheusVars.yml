@@ -9,7 +9,7 @@
 
     - name: Set fact  
       set_fact:
-        i_name: "{{ morpheus['customOptions']['instances'] }}"
+        i_name: "{{ morpheus['customOptions']['instances'].split('_') }}"
     
     - name: Set fact name
       set_fact:
@@ -17,4 +17,4 @@
         #i_ip: "{{ morpheus['customOptions']['instances'].split("_")[0] }}"
 
     - debug:
-        msg: "Instance name is: {{ i2_name.0 }} "
+        msg: "Instance name is: {{ i_name.0 }} "
