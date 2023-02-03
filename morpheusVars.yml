@@ -7,14 +7,16 @@
       debug:
         msg: "{{ morpheus['customOptions']['instances'] }}"
 
-    # - name: Store the value of instance name in a variable
-    #   set_fact:
-    #     instance: "{{ morpheus['customOptions']['instance'] }}"
-    #     i_name: "{{ instance.split("_")[0] }}"
-    #     i_ip: "{{ instance.split("_")[1] }}"
+    - name: Store the value of instance name in a variable
+      set_fact:
+        i_name: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
+
+    - name: Store the value of instance ip in a variable
+      set_fact:
+        i_ip: "{{ morpheus['customOptions']['instance'].split("_")[0] }}"
       
-    # - name: Print the new vars
-    #   debug:
-    #     msg: 
-    #     - "Instance name is: {{ i_name }} "
-    #     - "Instance ip is: {{ i_ip }}"
+    - name: Print the new vars
+      debug:
+        msg: 
+        - "Instance name is: {{ i_name }} "
+        - "Instance ip is: {{ i_ip }}"
