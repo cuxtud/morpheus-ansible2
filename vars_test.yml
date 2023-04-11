@@ -23,6 +23,6 @@
     - debug:
         containers: "{{ morpheus['instance'] }}"
         msg: "{{ containers }}"
-        msg: "First node in instance is {{ items.0.name }} with IP {{ items.0.internalIP }}"
-      loop:
-        - "{{ query('subelements'), containers, 'containers' }}"
+      #   msg: "First node in instance is {{ items.0.name }} with IP {{ items.0.internalIP }}"
+      # loop:
+      #   - "{{ query('subelements'), containers, 'containers' }}"
