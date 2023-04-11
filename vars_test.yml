@@ -2,22 +2,22 @@
 - hosts: all
   gather_facts: true
   tasks:
-    - debug:
-        msg: "{{ morpheus['instance']['Id'] }}"
-        msg: "{{ item }}"
-      loop: 
-        - "{{ hostvars[inventory_hostname]['morpheus']['morpheus']['apiAccessToken'] | to_nice_yaml }}"
+#     - debug:
+#         msg: "{{ morpheus['instance']['Id'] }}"
+#         msg: "{{ item }}"
+#       loop: 
+#         - "{{ hostvars[inventory_hostname]['morpheus']['morpheus']['apiAccessToken'] | to_nice_yaml }}"
         
-    - debug:
-        msg: "{{ item }}"
-      loop: 
-        - "{{ hostvars[inventory_hostname]['morpheus'] | to_nice_yaml }}"
+#     - debug:
+#         msg: "{{ item }}"
+#       loop: 
+#         - "{{ hostvars[inventory_hostname]['morpheus'] | to_nice_yaml }}"
 
-#The below will print the first vm name of an instance with multiple vm's
-    - debug:
-        msg: "{{ item }}"
-      loop:
-        - "{{ morpheus['instance']['containers'][0]['name'] }}"
+# #The below will print the first vm name of an instance with multiple vm's
+#     - debug:
+#         msg: "{{ item }}"
+#       loop:
+#         - "{{ morpheus['instance']['containers'][0]['name'] }}"
 
 # Iteration for items in array
     - debug:
