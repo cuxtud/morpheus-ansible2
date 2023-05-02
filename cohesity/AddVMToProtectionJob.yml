@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  # => We need to gather facts to determine the OS type of
+  # => the machine
+  gather_facts: true
+  become: false
+  # collections:
+  #   - cohesity.dataprotect
+  tasks:
+    - name: Add VM to existing Protection Job
+      cohesity_job:
+        cluster: "{{ lookup('cypher','secret=secret/cohesityHost') }}"
+        username: "{{ lookup('cypher','secret=secret/cohesityUser') }}"
+        password: "{{ lookup('cypher','secret=secret/cohesityPass') }}"
+        state: present
+        name: 'Dev-Non-SQL-VMs'
+        environment: VMware
+        protection_sources:
+          - "{{ lookup('cypher','secret=secret/cohesityVMwareSource') }}"
+        protection_policy: 'Dev-Non-SQL-VMs'
+        storage_domain: Default
