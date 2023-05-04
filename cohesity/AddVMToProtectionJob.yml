@@ -15,6 +15,7 @@
         state: present
         name: 'Dev-Non-SQL-VMs'
         environment: VMware
-        protection_sources: "{{ lookup('cypher','secret=secret/cohesityVMwareSource') }}"
+        protection_sources: 
+          - "{{ lookup('cypher','secret=secret/cohesityVMwareSource') }}"
         protection_policy: 'Dev-Non-SQL-VMs'
         storage_domain: Default
