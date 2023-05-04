@@ -16,6 +16,7 @@
         name: 'Dev-Non-SQL-VMs'
         environment: VMware
         protection_sources: 
-          - "{{ lookup('cypher','secret=secret/cohesityVMwareSource') }}"
+          # - "{{ lookup('cypher','secret=secret/cohesityVMwareSource') }}"
+          - vcenter01.prod.dc2.den.morpheusdata.com
         protection_policy: 'Dev-Non-SQL-VMs'
         storage_domain: Default
