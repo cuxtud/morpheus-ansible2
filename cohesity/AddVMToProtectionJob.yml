@@ -4,8 +4,8 @@
   # => the machine
   gather_facts: true
   become: false
-  # collections:
-  #   - cohesity.dataprotect
+  collections:
+    - cohesity.dataprotect
   tasks:
     - name: Add VM to existing Protection Job
       cohesity_job:
