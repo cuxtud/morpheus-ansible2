@@ -1,7 +1,7 @@
 ---
-- hosts: aa-airbus-01
+- hosts: aaall103.localdomain
   gather_facts: false
-  
+
   tasks:
     - apt: "name={{ item }} state=present"
       with_items:
