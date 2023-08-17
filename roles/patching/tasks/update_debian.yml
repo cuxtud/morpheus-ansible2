@@ -8,7 +8,7 @@
   apt:
     name: "*"
     state: latest
-    exclude: morpheus-vm-node
+    # exclude: morpheus-vm-node
 #   upgrade: dist 
     update_cache: yes
     only_upgrade: yes
