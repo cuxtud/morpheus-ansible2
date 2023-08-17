@@ -1,14 +1,16 @@
 ---
 # import tasks file to initiate the patching
-- name: Defining patching Type
-  debug:
-    msg: "Patching_type: {{ Patching_type }}"
+# - name: Defining patching Type
+#   debug:
+#     msg: "Patching_type: {{ Patching_type }}"
 
-- name: Importing full patching
-  import_tasks: update_with_reboot.yml
-  when: Patching_type == "KERNEL"
+# - name: Importing full patching
+#   import_tasks: update_with_reboot.yml
+#   when: Patching_type == "KERNEL"
 
-- name: Importing NOREBOOT patching
-  import_tasks: update_NO_reboot.yml
-  when: Patching_type == "NOREBOOT"
+# - name: Importing NOREBOOT patching
+#   import_tasks: update_NO_reboot.yml
+#   when: Patching_type == "NOREBOOT"
 
+- include_tasks: update_debian.yml
+  when: "ansible_facts['os_family'] == 'Debian'"

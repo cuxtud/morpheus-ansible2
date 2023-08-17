@@ -1,0 +1,14 @@
+---
+- name: Skip Morpheus agent installation
+  dpkg_selections:
+      name: "morpheus-vm-node"
+      selection: hold
+
+- name: Update all packages for Debian OS family
+  apt:
+    name: "*"
+    state: latest
+#   upgrade: dist 
+    update_cache: yes
+    only_upgrade: yes
+  register: DpkgUpdate_status
