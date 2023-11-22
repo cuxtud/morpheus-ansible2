@@ -1,0 +1,22 @@
+---
+- name: This is to add user on instances
+  hosts: all
+  become: yes
+  tasks:
+    - set_fact:
+        userpass: "{{ morpheus['customOptions']['password'] }}"
+        username: "{{ morpheus['customOptions']['username'] }}"
+
+    - name: Add a user
+      user:
+        name: "{{ username }}"
+        password: "{{ userpass }}"
+        state: present    
+   
+    - name: Add sudoers users to wheel group
+      user:
+        name: "{{ username }}"
+        groups: wheel
+        append: yes
+        state: present
+        createhome: yes
