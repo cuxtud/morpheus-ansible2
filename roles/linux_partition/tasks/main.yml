@@ -3,11 +3,11 @@
 - name: "Create partition"
   community.general.parted:
     device: "/dev/sdb"
-    name: "datadisk"
+#    name: "datadisk"
     number: 1
-    label: "gpt"
-    part_end: "100%"
+#    label: "gpt"
+    flags: [ lvm ]
     fs_type: "lvm"
     state: present
-    flags: [ lvm ]
-    unit: GiB
+    part_end: "100%"
+#    unit: GiB
