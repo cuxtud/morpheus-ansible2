@@ -5,8 +5,8 @@
     device: "/dev/sdb"
     name: "datadisk"
     number: 1
-    part_end: "10.0GiB"
+    part_end: "100%"
     fs_type: "lvm"
     state: present
-    label: "datadisk"
+    flags: [ lvm ]
     unit: GiB
