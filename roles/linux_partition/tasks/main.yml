@@ -9,4 +9,4 @@
     fs_type: "lvm"
     state: present
     label: "datadisk"
-    unit: Gib
+    unit: GiB
