@@ -6,8 +6,8 @@
 #    name: "datadisk"
     number: 1
 #    label: "gpt"
-    flags: [ lvm ]
-    fs_type: "lvm"
+    flags: lvm
+#    fs_type: "lvm"
     state: present
     part_end: "100%"
 #    unit: GiB
