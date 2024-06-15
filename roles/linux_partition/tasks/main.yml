@@ -1,0 +1,12 @@
+---
+# tasks file for linux_partition
+- name: "Create partition"
+  community.general.parted:
+    device: "/dev/sdb"
+    name: "datadisk"
+    number: 1
+    part_end: "10.0GiB"
+    fs_type: "lvm"
+    state: present
+    label: "datadisk"
+    unit: Gib
