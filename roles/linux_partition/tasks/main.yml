@@ -5,6 +5,7 @@
     device: "/dev/sdb"
     name: "datadisk"
     number: 1
+    label: "gpt"
     part_end: "100%"
     fs_type: "lvm"
     state: present
