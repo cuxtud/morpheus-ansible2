@@ -1,4 +1,8 @@
 ---
+- name: Scan for new disks
+  become: true
+  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
+
 # tasks file for linux_partition
 - name: Create partition
   community.general.parted:
