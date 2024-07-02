@@ -11,7 +11,8 @@
     var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list 
 
 - name: "Get instance disk count from morpheus"
-  var: "{{ morpheus['instance']['container']['server']['volumes'] | list }}"
+  debug:
+    var: "{{ morpheus['instance']['container']['server']['volumes'] | list }}"
 
 # - name: Scan for new disks
 #   become: true
