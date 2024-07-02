@@ -1,43 +1,54 @@
 ---
-- name: Scan for new disks
-  become: true
-  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
+- name: Collect h/w info
+  gather_facts: false
+  setup: 
+    gather_subset:
+    - hardware
 
-# tasks file for linux_partition
-- name: Create partition
-  community.general.parted:
-    device: "/dev/sdb"
-    number: 1
-    label: "gpt"
-    flags: lvm
-    state: present
-    part_end: "100%"
+- name: Get existing disk list
+  gather_facts: false
+  debug:
+    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list 
 
-- name: Create PV and VG
-  community.general.lvg:
-    vg: datavg
-    pvs: "/dev/sdb1"
+# - name: Scan for new disks
+#   become: true
+#   shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
 
-- name: LV with 100% free space in vg
-  community.general.lvol:
-    vg: datavg
-    lv: datalv
-    size: 100%FREE
+# # tasks file for linux_partition
+# - name: Create partition
+#   community.general.parted:
+#     device: "/dev/sdb"
+#     number: 1
+#     label: "gpt"
+#     flags: lvm
+#     state: present
+#     part_end: "100%"
 
-- name: Format the lv with ext4
-  community.general.filesystem:
-    fstype: ext4
-    dev: /dev/datavg/datalv
+# - name: Create PV and VG
+#   community.general.lvg:
+#     vg: datavg
+#     pvs: "/dev/sdb1"
 
-- name: Target directory
-  ansible.builtin.file:
-    path: /tmp/lv_test/
-    state: directory
-    mode: '0755'
+# - name: LV with 100% free space in vg
+#   community.general.lvol:
+#     vg: datavg
+#     lv: datalv
+#     size: 100%FREE
 
-- name: mount the lv
-  ansible.posix.mount:
-    path: /tmp/lv_test/
-    src: /dev/datavg/datalv
-    fstype: ext4
-    state: mounted
+# - name: Format the lv with ext4
+#   community.general.filesystem:
+#     fstype: ext4
+#     dev: /dev/datavg/datalv
+
+# - name: Target directory
+#   ansible.builtin.file:
+#     path: /tmp/lv_test/
+#     state: directory
+#     mode: '0755'
+
+# - name: mount the lv
+#   ansible.posix.mount:
+#     path: /tmp/lv_test/
+#     src: /dev/datavg/datalv
+#     fstype: ext4
+#     state: mounted
