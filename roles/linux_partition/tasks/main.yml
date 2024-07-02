@@ -1,5 +1,5 @@
 ---
-- name: Collect h/w info
+- name: Collect hw info
   gather_facts: false
   setup: 
     gather_subset:
