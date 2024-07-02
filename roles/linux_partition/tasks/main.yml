@@ -12,7 +12,8 @@
 
 - name: "Get instance disk count from morpheus"
   debug:
-    var: "{{ morpheus['instance']['container']['server']['volumes'] | list }}"
+    # var: "{{ morpheus['instance']['container']['server']['volumes'] | list }}"
+    var: "{{ morpheus['instance']['container']['server'] }}"
 
 # - name: Scan for new disks
 #   become: true
