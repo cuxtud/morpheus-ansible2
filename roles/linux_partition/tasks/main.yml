@@ -1,12 +1,12 @@
 ---
-- name: Collect hw info
-  gather_facts: false
+- name: "Collect hw info"
+  # gather_facts: false
   setup: 
     gather_subset:
     - hardware
 
-- name: Get existing disk list
-  gather_facts: false
+- name: "Get existing disk list"
+  # gather_facts: false
   debug:
     var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list 
 
