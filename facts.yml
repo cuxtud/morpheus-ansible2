@@ -1,6 +1,6 @@
 ---
 - name: Test ansible facts with Morpheus run.
-  hosts: local
+  hosts: all
   tasks:   
     - debug:
         msg: "{{ morpheus['results']['resultTaskOne'] }}"
