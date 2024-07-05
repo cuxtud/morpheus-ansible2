@@ -3,4 +3,4 @@
   hosts: all
   tasks:   
     - debug:
-        msg: "{{ morpheus['results']['resultTaskTwo'] }}"
+        msg: "{{ morpheus['results']['resultTaskTwo']['resultTaskOne'] }}"
