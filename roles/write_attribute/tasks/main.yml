@@ -1,0 +1,4 @@
+---
+- name: "Collect hw info"
+  gather_facts: true
+  

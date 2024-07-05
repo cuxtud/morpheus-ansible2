@@ -2,15 +2,8 @@
 - name: Test ansible facts with Morpheus run.
   hosts: all
   gather_facts: yes
-  tasks:    
+  tasks:   
     - debug:
-<<<<<<< HEAD
-       # msg: the tenant is {{ morpheus['account'] }}
-       # msg: Output of instance name var {{ morpheus['instance']['name'] }}
-        msg: "{{ morpheus['results']['taskOne'] }}"
-=======
-        #msg: the tenant is {{ morpheus['account'] }}
-        #msg: Output of instance name var {{ morpheus['instance']['name'] }}
-        msg: Test {{ morpheus['instance']['name'] }}
-        msg: Test {{ morpheus['results']['taskOne'] }}
->>>>>>> 86ab7aa8ab5d488e7e4023fc65849082bd6e4fb1
+        msg: "{{ morpheus['results']['resultTaskOne'] }}"
+        msg: "{{ morpheus['instance']['name'] }}"
+        msg: "{{ morpheus['results']['resultTaskTwo'] }}"
