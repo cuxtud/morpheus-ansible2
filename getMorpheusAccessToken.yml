@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: no
+  var_files:
+    - var_files/connection.yml
+    - var_files/credential.yml
+  tasks:
+    - name: Get Morpheus Access token for a client AAP
+      uri:
+        url: "https://{{morph_host}}/oauth/token?grant_type=password&scope=write&client_id=morph-api"
+        validate_certs: false
+        body_format: form-urlencoded
+        body:
+          username: "{{ morph_user }}"
+          password: "{{ morph_password }}"
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+          charset: utf-8
+        method: POST
+        status_code: 302
+        register: response
+
+        
