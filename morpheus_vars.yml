@@ -1,18 +1,6 @@
 ---
 - hosts: all
-  gather_facts: true
+  become: no
   tasks:
     - debug:
         msg: "{{ morpheus['morpheus']}}"
-        #msg: "{{ morpheus['accountNumber'] }}"
-        # msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
-        # msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
-    
-    # - name: "set morpheus account name"
-    #   set_fact:
-    #     local_account: "{{ morpheus['account'] }}"
-    #   delegate_to: localhost
-
-
-    # - debug:
-    #     msg: "{{ local_account }}"
