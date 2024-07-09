@@ -3,17 +3,16 @@
   gather_facts: true
   tasks:
     - debug:
-        #morpheus: "{{ morpheus }}"
-        #msg: "{{ morpheus['morpheus']}}"
+        msg: "{{ morpheus['morpheus']}}"
         #msg: "{{ morpheus['accountNumber'] }}"
-        msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
-        msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
+        # msg: "{{ morpheus['instance']['container']['server']['internalIp'] }}"
+        # msg: "{{ morpheus['instance']['container']['server']['osType'] }}"
     
-    - name: "set morpheus account name"
-      set_fact:
-        local_account: "{{ morpheus['account'] }}"
-      delegate_to: localhost
+    # - name: "set morpheus account name"
+    #   set_fact:
+    #     local_account: "{{ morpheus['account'] }}"
+    #   delegate_to: localhost
 
 
-    - debug:
-        msg: "{{ local_account }}"
+    # - debug:
+    #     msg: "{{ local_account }}"
