@@ -1,12 +1,13 @@
 ---
 - hosts: all
   become: no
-  include_vars:
-    dir: var_files
-    extensions:
-      - 'yml'
+  
   tasks:
     - name: Get Morpheus Access token for a client AAP
+      include_vars:
+        dir: var_files
+        extensions:
+          - 'yml'
       uri:
         url: "https://{{morph_host}}/oauth/token?grant_type=password&scope=write&client_id=morph-api"
         validate_certs: false
