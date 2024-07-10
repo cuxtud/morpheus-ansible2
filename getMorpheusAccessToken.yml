@@ -1,9 +1,10 @@
 ---
 - hosts: all
   become: no
-  var_files:
-    - var_files/connection.yml
-    - var_files/credential.yml
+  include_vars:
+    dir: var_files
+    extensions:
+      - 'yml'
   tasks:
     - name: Get Morpheus Access token for a client AAP
       uri:
