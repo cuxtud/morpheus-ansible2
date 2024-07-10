@@ -15,8 +15,8 @@
         validate_certs: false
         body_format: form-urlencoded
         body:
-          username: "{{ lookup('cypher','secret=secret/morphuser' }}"
-          password: "{{ lookup('cypher','secret=secret/morphpass' }}"
+          username: "{{ lookup('cypher','secret=secret/morphuser') }}"
+          password: "{{ lookup('cypher','secret=secret/morphpass') }}"
         headers:
           Content-Type: "application/x-www-form-urlencoded"
           charset: utf-8

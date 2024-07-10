@@ -1,1 +1,1 @@
-morph_host: "{{ lookup('cypher','secret=secret/morphhost }}"
+morph_host: "{{ lookup('cypher','secret=secret/morphhost') }}"
