@@ -1,6 +1,5 @@
 ---
 - name: "Collect hw info"
-  # gather_facts: false
   setup: 
     gather_subset:
       - hardware
@@ -15,7 +14,7 @@
 
 - name: Store the disk count of morpheus as a fact
   set_fact:
-    disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length  }}"
+    disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length }}"
 
 - name: Debug instance disk count
   debug:
@@ -34,7 +33,6 @@
   set_fact:
     new_disk: "sd{{ 'abcdefghijklmnopqrstuvwxyz'[disk_data_count_int] }}"
   when: disk_list_count_int > disk_data_count_int
-
 
 - name: Debug new_disk variable
   debug:
