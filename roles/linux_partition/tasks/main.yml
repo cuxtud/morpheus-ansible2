@@ -10,7 +10,7 @@
 
 - name: Debug existing disk count
   debug:
-    var: disk_data_count
+    msg: disk_data_count
 
 - name: Store the disk count of morpheus as a fact
   set_fact:
@@ -18,7 +18,7 @@
 
 - name: Debug instance disk count
   debug:
-    var: disk_list_count
+    msg: disk_list_count
 
 - name: Convert counts to integers
   set_fact:
@@ -36,7 +36,7 @@
 
 - name: Debug new_disk variable
   debug:
-    var: new_disk
+    msg: new_disk
 
 
 # - name: Scan for new disks
