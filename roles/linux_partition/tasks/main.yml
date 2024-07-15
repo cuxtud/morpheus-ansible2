@@ -3,24 +3,23 @@
   # gather_facts: false
   setup: 
     gather_subset:
-    - hardware
-
-- name: "Get existing disk list"
-  # gather_facts: false
-  debug:
-    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length 
+      - hardware
 
 - name: Store the os disk list count as a fact
   set_fact:
     disk_data_count: "{{ hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length }}"
 
-- name: "Get instance disk count from morpheus"
+- name: Debug existing disk count
   debug:
-    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length }}"
+    var: disk_data_count
 
 - name: Store the disk count of morpheus as a fact
   set_fact:
     disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length  }}"
+
+- name: Debug instance disk count
+  debug:
+    var: disk_list_count
 
 - name: Check if counts are different and set new_disk if necessary
   set_fact:
