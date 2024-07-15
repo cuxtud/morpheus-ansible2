@@ -1,8 +1,4 @@
 ---
-- name: Scan for new disks
-  become: true
-  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
-
 - name: "Collect hw info"
   # gather_facts: false
   setup: 
@@ -31,7 +27,9 @@
     new_disk: "sd{{ 'abcdefghijklmnopqrstuvwxyz'[disk_list_count] }}"
   when: disk_data_count | int > disk_list_count | int
 
-
+- name: Scan for new disks
+  become: true
+  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
 
 # # tasks file for linux_partition
 # - name: Create partition
