@@ -8,24 +8,29 @@
 - name: "Get existing disk list"
   # gather_facts: false
   debug:
-    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length | int
+    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length 
 
 - name: Store the os disk list count as a fact
   set_fact:
-    disk_data_count: "hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length | int"
+    disk_data_count: "hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length "
 
 - name: "Get instance disk count from morpheus"
   debug:
-    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length | int}}"
+    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length }}"
 
 - name: Store the disk count of morpheus as a fact
   set_fact:
-    disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length | int }}"
+    disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length  }}"
 
 - name: Check if counts are different and set new_disk if necessary
   set_fact:
     new_disk: "sd{{ 'abcdefghijklmnopqrstuvwxyz'[disk_list_count] }}"
-  when: disk_data_count  > disk_list_count 
+  when: disk_list_count | int > disk_data_count | int
+
+- name: Debug new_disk variable
+  debug:
+    var: new_disk
+
 
 # - name: Scan for new disks
 #   become: true
