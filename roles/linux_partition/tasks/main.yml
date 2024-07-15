@@ -44,45 +44,53 @@
 
 
 
-# - name: Scan for new disks
-#   become: true
-#   shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
+- name: Scan for new disks
+  become: true
+  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
 
-# # tasks file for linux_partition
-# - name: Create partition
-#   community.general.parted:
-#     device: "/dev/sdb"
-#     number: 1
-#     label: "gpt"
-#     flags: lvm
-#     state: present
-#     part_end: "100%"
+# tasks file for linux_partition
+- name: Create partition
+  community.general.parted:
+    device: "/dev/{{new_disk}}"
+    number: 1
+    label: "gpt"
+    flags: lvm
+    state: present
+    part_end: "100%"
 
-# - name: Create PV and VG
-#   community.general.lvg:
-#     vg: datavg
-#     pvs: "/dev/sdb1"
+- name: Create/Extend PV and VG
+  community.general.lvg:
+    vg: datavg
+    pvs: "/dev/{{new_disk}}1"
 
-# - name: LV with 100% free space in vg
-#   community.general.lvol:
-#     vg: datavg
-#     lv: datalv
-#     size: 100%FREE
+- name: get lv path from morpheus
+  set_fact:
+    lv_path: "{{ morpheus['instance']['containers'][0]['server']['volumes'][disk_list_count_int]['name'] }}"
 
-# - name: Format the lv with ext4
-#   community.general.filesystem:
-#     fstype: ext4
-#     dev: /dev/datavg/datalv
+- name: Replace / with _ and set lv_name
+  set_fact:
+    lv_name: "{{ original_string | replace('/', '_') }}"
 
-# - name: Target directory
-#   ansible.builtin.file:
-#     path: /tmp/lv_test/
-#     state: directory
-#     mode: '0755'
+- name: LV with 100% free space in vg
+  community.general.lvol:
+    vg: datavg
+    lv: "{{ lv_name }}"
+    size: 100%FREE
 
-# - name: mount the lv
-#   ansible.posix.mount:
-#     path: /tmp/lv_test/
-#     src: /dev/datavg/datalv
-#     fstype: ext4
-#     state: mounted
+- name: Format the lv with ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: "/dev/datavg/{{ lv_name }}"
+
+- name: Target directory
+  ansible.builtin.file:
+    path: "{{ lv_path }}"
+    state: directory
+    mode: '0755'
+
+- name: mount the lv
+  ansible.posix.mount:
+    path: "{{ lv_path }}"
+    src: "/dev/datavg/{{ lv_name }}"
+    fstype: ext4
+    state: mounted
