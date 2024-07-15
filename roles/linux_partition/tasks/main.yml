@@ -8,12 +8,14 @@
 - name: "Get existing disk list"
   # gather_facts: false
   debug:
-    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | count 
+    # var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | count
+    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length 
 
 - name: "Get instance disk count from morpheus"
   debug:
     # var: "{{ morpheus['instance']['container']['server']['volumes'] | list }}"
-    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | count }}"
+    # var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | count }}"
+    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length }}"
 
 # - name: Scan for new disks
 #   become: true
