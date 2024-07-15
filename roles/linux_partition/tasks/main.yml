@@ -8,7 +8,7 @@
 - name: "Get existing disk list"
   # gather_facts: false
   debug:
-    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list 
+    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | count 
 
 - name: "Get instance disk count from morpheus"
   debug:
