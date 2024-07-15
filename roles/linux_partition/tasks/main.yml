@@ -8,11 +8,11 @@
 - name: "Get existing disk list"
   # gather_facts: false
   debug:
-    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length 
+    var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length | int
 
 - name: Store the os disk list count as a fact
   set_fact:
-    disk_data_count: "hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length"
+    disk_data_count: "hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | length | int"
 
 - name: "Get instance disk count from morpheus"
   debug:
