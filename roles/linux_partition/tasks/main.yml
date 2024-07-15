@@ -16,20 +16,20 @@
 
 - name: "Get instance disk count from morpheus"
   debug:
-    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length }}"
+    var: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length | int}}"
 
 - name: Store the disk count of morpheus as a fact
   set_fact:
-    disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length }}"
+    disk_list_count: "{{ morpheus['instance']['containers'][0]['server']['volumes'] | length | int }}"
 
 - name: Check if counts are different and set new_disk if necessary
   set_fact:
     new_disk: "sd{{ 'abcdefghijklmnopqrstuvwxyz'[disk_list_count] }}"
-  when: disk_list_count | int > disk_data_count | int
+  when: disk_data_count  > disk_list_count 
 
-- name: Scan for new disks
-  become: true
-  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
+# - name: Scan for new disks
+#   become: true
+#   shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
 
 # # tasks file for linux_partition
 # - name: Create partition
