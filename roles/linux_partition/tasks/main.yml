@@ -25,7 +25,7 @@
 - name: Check if counts are different and set new_disk if necessary
   set_fact:
     new_disk: "sd{{ 'abcdefghijklmnopqrstuvwxyz'[disk_list_count] }}"
-  when: disk_data_count | int > disk_list_count | int
+  when: disk_list_count | int > disk_data_count | int
 
 - name: Scan for new disks
   become: true
