@@ -63,9 +63,13 @@
     vg: datavg
     pvs: "/dev/{{new_disk}}1"
 
+- name: Get the count of the volume info from morpheus
+  set_fact: 
+    disk_count_array_int: "{{ disk_list_count_int  - 1 }}"
+
 - name: get lv path from morpheus
   set_fact:
-    lv_path: "{{ morpheus['instance']['containers'][0]['server']['volumes'][disk_list_count_int]['name'] }}"
+    lv_path: "{{ morpheus['instance']['containers'][0]['server']['volumes'][disk_count_array_int]['name'] }}"
 
 - name: Replace / with _ and set lv_name
   set_fact:
