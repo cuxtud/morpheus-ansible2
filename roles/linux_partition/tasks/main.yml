@@ -64,13 +64,25 @@
   set_fact: 
     disk_count_array_int: "{{ disk_list_count_int | int - 1 }}"
 
-- name: get lv path from morpheus
+- name: Get the name of the volume matching new_disk
   set_fact:
-    lv_path: "{{ morpheus['instance']['containers'][0]['server']['volumes'][disk_count_array_int]['name'] }}"
+    volume_name: "{{ item.name }}"
+  loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+  when: item.deviceName == '/dev/' ~ new_disk
+  register: volume_name_result
+
+- name: Set the volume name fact
+  set_fact:
+    volume_name_final: "{{ volume_name_result.results[0].ansible_facts.volume_name }}"
+  when: volume_name_result.results | length > 0
+
+- name: Debug the volume name
+  debug:
+    var: volume_name_final
 
 - name: Replace / with _ and set lv_name
   set_fact:
-    lv_name: "{{ original_string | replace('/', '_') }}"
+    lv_name: "{{ volume_name_final | replace('/', '_') }}"
 
 - name: LV with 100% free space in vg
   community.general.lvol:
