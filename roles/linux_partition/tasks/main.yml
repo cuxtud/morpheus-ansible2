@@ -94,30 +94,30 @@
 #   debug:
 #     var: volume_name_final
 
-# - name: Replace / with _ and set lv_name
-#   set_fact:
-#     lv_name: "{{ volume_name_final | replace('/', '_') }}"
+- name: Replace / with _ and set lv_name
+  set_fact:
+    lv_name: "{{ volume_name | replace('/', '_') }}"
 
-# - name: LV with 100% free space in vg
-#   community.general.lvol:
-#     vg: "{{ vgName }}"
-#     lv: "{{ lv_name }}"
-#     size: 100%FREE
+- name: LV with 100% free space in vg
+  community.general.lvol:
+    vg: "{{ vgName }}"
+    lv: "{{ lv_name }}"
+    size: 100%FREE
 
-# - name: Format the lv with ext4
-#   community.general.filesystem:
-#     fstype: ext4
-#     dev: "/dev/{{ vgName }}/{{ lv_name }}"
+- name: Format the lv with ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: "/dev/{{ vgName }}/{{ lv_name }}"
 
-# - name: Target directory
-#   ansible.builtin.file:
-#     path: "{{ volume_name_final }}"
-#     state: directory
-#     mode: '0755'
+- name: Target directory
+  ansible.builtin.file:
+    path: "{{ volume_name }}"
+    state: directory
+    mode: '0755'
 
-# - name: mount the lv
-#   ansible.posix.mount:
-#     path: "{{ volume_name_final }}"
-#     src: "/dev/{{ vgName }}/{{ lv_name }}"
-#     fstype: ext4
-#     state: mounted
+- name: mount the lv
+  ansible.posix.mount:
+    path: "{{ volume_name }}"
+    src: "/dev/{{ vgName }}/{{ lv_name }}"
+    fstype: ext4
+    state: mounted
