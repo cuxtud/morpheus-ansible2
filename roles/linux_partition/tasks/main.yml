@@ -105,13 +105,13 @@
 
 - name: Target directory
   ansible.builtin.file:
-    path: "{{ lv_path }}"
+    path: "{{ volume_name_final }}"
     state: directory
     mode: '0755'
 
 - name: mount the lv
   ansible.posix.mount:
-    path: "{{ lv_path }}"
+    path: "{{ volume_name_final }}"
     src: "/dev/{{ vgName }}/{{ lv_name }}"
     fstype: ext4
     state: mounted
