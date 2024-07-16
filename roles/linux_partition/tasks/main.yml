@@ -79,10 +79,16 @@
   debug:
     var: volume_name_result
 
+# - name: Set the volume name fact
+#   set_fact:
+#     volume_name_final: "{{ volume_name_result.results[0].ansible_facts.volume_name }}"
+#   when: volume_name_result.results | length > 0
+
 - name: Set the volume name fact
   set_fact:
-    volume_name_final: "{{ volume_name_result.results[0].ansible_facts.volume_name }}"
-  when: volume_name_result.results | length > 0
+    volume_name_final: "{{ ansible_facts.volume_name }}"
+  loop: "{{ volume_name_result.results }}"
+  when: item.deviceName == '/dev/' ~ new_disk
 
 - name: Debug the volume name
   debug:
