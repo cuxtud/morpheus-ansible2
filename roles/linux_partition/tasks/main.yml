@@ -64,10 +64,6 @@
     vg: "{{ vgName }}"
     pvs: "/dev/{{new_disk}}1"
 
-# - name: Get the count of the volume info from morpheus
-#   set_fact: 
-#     disk_count_array_int: "{{ disk_list_count_int | int - 1 }}"
-
 - name: Get the name of the volume matching new_disk
   set_fact:
     volume_name: "{{ item.name }}"
@@ -78,21 +74,6 @@
 - name: Debug the volume_name_result
   debug:
     var: volume_name
-
-# - name: Set the volume name fact
-#   set_fact:
-#     volume_name_final: "{{ volume_name_result.results[0].ansible_facts.volume_name }}"
-#   when: volume_name_result.results | length > 0
-
-# - name: Set the volume name fact
-#   set_fact:
-#     volume_name_final: "{{ ansible_facts.volume_name }}"
-#   loop: "{{ volume_name_result.results }}"
-#   when: item.deviceName == '/dev/' ~ new_disk
-
-# - name: Debug the volume name
-#   debug:
-#     var: volume_name_final
 
 - name: Replace / with _ and set lv_name
   set_fact:
