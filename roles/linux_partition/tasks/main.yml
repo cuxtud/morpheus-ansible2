@@ -64,9 +64,9 @@
     vg: "{{ vgName }}"
     pvs: "/dev/{{new_disk}}1"
 
-- name: Get the count of the volume info from morpheus
-  set_fact: 
-    disk_count_array_int: "{{ disk_list_count_int | int - 1 }}"
+# - name: Get the count of the volume info from morpheus
+#   set_fact: 
+#     disk_count_array_int: "{{ disk_list_count_int | int - 1 }}"
 
 - name: Get the name of the volume matching new_disk
   set_fact:
@@ -74,6 +74,10 @@
   loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
   when: item.deviceName == '/dev/' ~ new_disk
   register: volume_name_result
+
+- name: Debug the volume_name_result
+  debug:
+    var: volume_name_result
 
 - name: Set the volume name fact
   set_fact:
