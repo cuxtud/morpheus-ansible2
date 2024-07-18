@@ -19,7 +19,7 @@
     - name: Set the new_disk fact if mount point does not exist
       set_fact:
         new_disk: "{{ item.deviceName | regex_replace('/dev/', '') }}"
-      when: mount_point_stat.results | selectattr('item.name', 'equalto', item.name) | map(attribute='stat.exists') | first == false and item.deviceName != '/dev/sda'
+      when: mount_point_stat.results[loop.index0].stat.exists == false and item.deviceName != '/dev/sda'
       loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
       loop_control:
         label: "{{ item.name }}"
