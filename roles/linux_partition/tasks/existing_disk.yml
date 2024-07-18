@@ -19,7 +19,7 @@
     - name: Set the new_disk fact if mount point does not exist
       set_fact:
         new_disk: "{{ item.deviceName | regex_replace('/dev/', '') }}"
-      when: not mount_point_stat.stat.exists and item.deviceName != '/dev/sda'
+      when: mount_point_stat.results[loop.index0].stat.exists == false and item.deviceName != '/dev/sda'
       loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
       loop_control:
         label: "{{ item.name }}"
@@ -39,7 +39,7 @@
         var: new_disk_final
 
     - name: Include additional tasks if new_disk_final is defined
-      include_tasks: new_disk.yml
+      include_tasks: additional_tasks.yml
       vars:
         new_disk: "{{ new_disk_final }}"
       when: new_disk_final is defined
