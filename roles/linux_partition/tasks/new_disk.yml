@@ -1,0 +1,62 @@
+# Setup the partition when a new disk is added during reconfigure.
+---
+- name: Scan for new disks
+  become: true
+  shell: echo "- - -" | sudo tee /sys/class/scsi_host/host*/scan >/dev/null
+
+- name: Create partition
+  community.general.parted:
+    device: "/dev/{{new_disk}}"
+    number: 1
+    label: "gpt"
+    flags: lvm
+    state: present
+    part_end: "100%"
+
+- name: Set VG name
+  set_fact:
+    vgName: "{{new_disk}}vg"
+
+- name: Create/Extend PV and VG
+  community.general.lvg:
+    vg: "{{ vgName }}"
+    pvs: "/dev/{{new_disk}}1"
+
+- name: Get the name of the volume matching new_disk
+  set_fact:
+    volume_name: "{{ item.name }}"
+  loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+  when: item.deviceName == '/dev/' ~ new_disk
+  register: volume_name_result
+
+- name: Debug the volume_name_result
+  debug:
+    var: volume_name
+
+- name: Replace / with _ and set lv_name
+  set_fact:
+    lv_name: "{{ volume_name | replace('/', '_') }}"
+
+- name: LV with 100% free space in vg
+  community.general.lvol:
+    vg: "{{ vgName }}"
+    lv: "{{ lv_name }}"
+    size: 100%FREE
+
+- name: Format the lv with ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: "/dev/{{ vgName }}/{{ lv_name }}"
+
+- name: Target directory
+  ansible.builtin.file:
+    path: "{{ volume_name }}"
+    state: directory
+    mode: '0755'
+
+- name: mount the lv
+  ansible.posix.mount:
+    path: "{{ volume_name }}"
+    src: "/dev/{{ vgName }}/{{ lv_name }}"
+    fstype: ext4
+    state: mounted

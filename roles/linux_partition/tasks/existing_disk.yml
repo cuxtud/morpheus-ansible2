@@ -1,0 +1,46 @@
+#Compare the disks in OS with Morpheus volumes list. Skip sda and verify if other disks are partitioned and mounted as per label
+
+---
+- name: Disk count in Morpheus
+  debug:
+    msg: "Total number of disks on instance in Morpheus {{ disk_list_count }}./n Skipping sda check..."
+
+- name: Iterate through morpheus volumes and check mount points
+  block:
+    - name: Check if mount point exists
+      stat:
+        path: "{{ item.name }}"
+      register: mount_point_stat
+      loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when: item.deviceName != '/dev/sda'
+
+    - name: Set the new_disk fact if mount point does not exist
+      set_fact:
+        new_disk: "{{ item.deviceName | regex_replace('/dev/', '') }}"
+      when: not mount_point_stat.stat.exists and item.deviceName != '/dev/sda'
+      loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: new_disk_fact
+
+    - name: Debug new_disk_fact
+      debug:
+        var: new_disk_fact
+
+    - name: Set the first device name where mount point does not exist
+      set_fact:
+        new_disk_final: "{{ new_disk_fact.results | selectattr('ansible_facts.new_disk', 'defined') | map(attribute='ansible_facts.new_disk') | list | first }}"
+      when: new_disk_fact.results | selectattr('ansible_facts.new_disk', 'defined') | length > 0
+
+    - name: Debug final new_disk
+      debug:
+        var: new_disk_final
+
+    - name: Include additional tasks if new_disk_final is defined
+      include_tasks: new_disk.yml
+      vars:
+        new_disk: "{{ new_disk_final }}"
+      when: new_disk_final is defined
+  when: disk_list_count_int == disk_data_count_int
