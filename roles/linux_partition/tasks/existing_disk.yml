@@ -7,40 +7,39 @@
 
 - name: Iterate through morpheus volumes and check mount points
   block:
-    - name: Check if mount point exists
-      stat:
-        path: "{{ item.1.name }}"
-      register: mount_point_stat
-      with_subelements:
-        - "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
-        - name
-      when: item.0.deviceName != '/dev/sda'
-
-    - name: Set the new_disk fact if mount point does not exist
+    - name: Set the initial new_disk to null
       set_fact:
-        new_disk: "{{ item.0.deviceName | regex_replace('/dev/', '') }}"
-      when: mount_point_stat.results | selectattr('stat.exists', 'equalto', false) | list | length > 0 and item.0.deviceName != '/dev/sda'
-      with_subelements:
-        - "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
-        - name
-      register: new_disk_fact
+        new_disk_final: null
+
+    - name: Check each volume mount point
+      block:
+        - name: Check if mount point exists
+          stat:
+            path: "{{ item.name }}"
+          register: mount_point_stat
+          when: item.deviceName != '/dev/sda'
+          loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+
+        - name: Set the new_disk fact if mount point does not exist
+          set_fact:
+            new_disk_final: "{{ item.deviceName | regex_replace('/dev/', '') }}"
+          when: not mount_point_stat.stat.exists and item.deviceName != '/dev/sda'
+          loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+          loop_control:
+            label: "{{ item.name }}"
+          register: new_disk_fact
 
     - name: Debug new_disk_fact
       debug:
         var: new_disk_fact
-
-    - name: Set the first device name where mount point does not exist
-      set_fact:
-        new_disk_final: "{{ new_disk_fact.results | selectattr('ansible_facts.new_disk', 'defined') | map(attribute='ansible_facts.new_disk') | list | first }}"
-      when: new_disk_fact.results | selectattr('ansible_facts.new_disk', 'defined') | length > 0
 
     - name: Debug final new_disk
       debug:
         var: new_disk_final
 
     - name: Include additional tasks if new_disk_final is defined
-      include_tasks: additional_tasks.yml
+      include_tasks: new_disk.yml
       vars:
         new_disk: "{{ new_disk_final }}"
-      when: new_disk_final is defined
+      when: new_disk_final is not none
   when: disk_list_count_int == disk_data_count_int
