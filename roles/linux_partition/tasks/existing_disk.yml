@@ -24,7 +24,7 @@
     
     - name: Get the mount point name if disk is not sda
       debug:
-        msg: "{{ item.deviceName }}"
+        msg: "{{ item.item.deviceName }}"
       when: "item.stat is defined"
       with_items: "{{ mount_point_stat.results }}"
 
