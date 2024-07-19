@@ -11,26 +11,22 @@
       set_fact:
         new_disk_final: null
 
-    - name: Check each volume mount point
-      block:
-        - name: Check if mount point exists
-          stat:
-            path: "{{ item.name }}"
-          register: mount_point_stat
-          when: item.deviceName != '/dev/sda'
-          loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
-        
-        - name: Debug mount_point_stat
-          debug:
-            msg: "{{ mount_point_stat }}"
+    - name: Check if mount point exists
+      stat:
+        path: "{{ item.name }}"
+      register: mount_point_stat
+      with_items: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+      when: item.deviceName != '/dev/sda'
+    
+    - name: Debug mount_point_stat
+      debug:
+        msg: "{{ mount_point_stat }}"
 
-        - name: Set the new_disk fact if mount point does not exist
-          set_fact:
-            new_disk_final: "{{ item.deviceName | regex_replace('/dev/', '') }}"
-          when: "mount_point_stat.results[loop.index0].stat is defined and mount_point_stat.results[loop.index0].stat.exists == false and item.deviceName != '/dev/sda'"
-          loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
-          loop_control:
-            label: "{{ item.name }}"
+    - name: Set the new_disk fact if mount point does not exist
+      set_fact:
+        new_disk_final: "{{ item.deviceName | regex_replace('/dev/', '') }}"
+      when: "item.stat is defined and not item.stat.exists and item.item.deviceName != '/dev/sda'"
+      with_items: "{{ mount_point_stat.results }}"
 
     - name: Debug final new_disk
       debug:
