@@ -22,15 +22,15 @@
       debug:
         msg: "{{ mount_point_stat }}"
     
-    - name: Get the mount point name if disk is not sda
-      debug:
-        msg: "{{ item.item.deviceName }}"
-      when: "item.stat is defined"
-      with_items: "{{ mount_point_stat.results }}"
+    # - name: Get the mount point name if disk is not sda
+    #   debug:
+    #     msg: "{{ item.item.deviceName }}"
+    #   when: "item.stat is defined"
+    #   with_items: "{{ mount_point_stat.results }}"
 
     - name: Set the new_disk fact if mount point does not exist
       set_fact:
-        new_disk_final: "{{ item.deviceName | regex_replace('/dev/', '') }}"
+        new_disk_final: "{{ item.item.deviceName | regex_replace('/dev/', '') }}"
       when: "item.stat is defined and not item.stat.exists and item.item.deviceName != '/dev/sda'"
       with_items: "{{ mount_point_stat.results }}"
 
