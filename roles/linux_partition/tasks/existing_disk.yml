@@ -19,6 +19,10 @@
           register: mount_point_stat
           when: item.deviceName != '/dev/sda'
           loop: "{{ morpheus['instance']['containers'][0]['server']['volumes'] }}"
+        
+        - name: Debug mount_point_stat
+          debug:
+            msg: "{{ mount_point_stat }}"
 
         - name: Set the new_disk fact if mount point does not exist
           set_fact:
