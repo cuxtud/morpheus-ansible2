@@ -6,7 +6,21 @@
     - microsoft.sql
 
   vars:
-    ansible_python_interpreter: "C:\\Windows\\System32\\WindowsPowerShell\\1.0\\powershell.exe"
+    ansible_python_interpreter: "C:\\Python39\\python.exe"
+
+  pre_tasks:
+    - name: Check if Python is installed
+      win_shell: |
+        if (Test-Path "C:\Python39\python.exe") {
+          Write-Output "Python found"
+        } else {
+          Write-Output "Python not found"
+        }
+      register: python_check
+
+    - name: Display Python check result
+      debug:
+        var: python_check.stdout_lines
 
   roles:
     - role: microsoft.sql.server
