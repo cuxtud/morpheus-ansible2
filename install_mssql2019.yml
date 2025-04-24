@@ -5,6 +5,9 @@
   collections:
     - microsoft.sql
 
+  vars:
+    ansible_python_interpreter: "C:\\Windows\\System32\\WindowsPowerShell\\1.0\\powershell.exe"
+
   roles:
     - role: microsoft.sql.server
       vars:
