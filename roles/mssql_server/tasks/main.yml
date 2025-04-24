@@ -10,7 +10,7 @@
       exit 0
     }
   register: sql_check
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Create SQL Server installation directory
   win_file:
@@ -32,19 +32,19 @@
   register: sql_install_result
   when: sql_check.rc == 0
 
-- name: Wait for SQL Server service to start
+- name: Check SQL Server service status
   win_service:
     name: "MSSQLSERVER"
     state: started
     start_mode: auto
-  when: sql_install_result.changed
+  register: sql_service_status
 
-- name: Enable SQL Server Browser service
+- name: Check SQL Browser service status
   win_service:
     name: SQLBrowser
     state: started
     start_mode: auto
-  when: sql_install_result.changed
+  register: browser_service_status
 
 - name: Open SQL Server port in Windows Firewall
   win_firewall_rule:
@@ -55,7 +55,7 @@
     protocol: tcp
     state: present
     enabled: yes
-  when: sql_install_result.changed
+  when: sql_service_status.changed or sql_install_result.changed
 
 - name: Open SQL Server Browser port in Windows Firewall
   win_firewall_rule:
@@ -66,4 +66,4 @@
     protocol: udp
     state: present
     enabled: yes
-  when: sql_install_result.changed 
+  when: browser_service_status.changed or sql_install_result.changed 
