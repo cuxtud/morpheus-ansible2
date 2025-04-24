@@ -18,7 +18,7 @@
 
 - name: Wait for SQL Server service to start
   win_service:
-    name: "MSSQL${{ sql_server_instance_name }}"
+    name: "MSSQLSERVER"
     state: started
     start_mode: auto
   when: sql_install_result.changed
