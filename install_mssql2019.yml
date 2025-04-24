@@ -2,28 +2,9 @@
 - name: Install SQL Server 2019 Developer Edition
   hosts: all
   gather_facts: yes
-  collections:
-    - microsoft.sql
-
-  vars:
-    ansible_python_interpreter: "C:\\Python39\\python.exe"
-
-  pre_tasks:
-    - name: Check if Python is installed
-      win_shell: |
-        if (Test-Path "C:\Python39\python.exe") {
-          Write-Output "Python found"
-        } else {
-          Write-Output "Python not found"
-        }
-      register: python_check
-
-    - name: Display Python check result
-      debug:
-        var: python_check.stdout_lines
 
   roles:
-    - role: microsoft.sql.server
+    - role: mssql_server
       vars:
         sql_server_version: "2019"
         sql_server_edition: "Developer"
@@ -33,6 +14,3 @@
         sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"
         sql_server_instance_name: "MSSQLSERVER"
         sql_server_features: "SQLENGINE,SSMS,ADV_SSMS"
-        mssql_accept_microsoft_odbc_driver_for_sql_server_eula: true
-        mssql_accept_microsoft_cli_utilities_for_sql_server_eula: true
-        mssql_accept_microsoft_sql_server_standard_eula: true
