@@ -13,4 +13,4 @@
         sql_server_media_path: "C:\\SQL2019\\Evaluation_ENU"
         sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"
         sql_server_instance_name: "MSSQLSERVER"
-        sql_server_features: "SQLENGINE,SSMS,ADV_SSMS"
+        sql_server_features: "SQLENGINE,TOOLS,CONN,BC"
