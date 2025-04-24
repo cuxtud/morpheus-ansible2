@@ -1,13 +1,28 @@
 ---
+- name: Check if SQL Server is already installed
+  win_shell: |
+    $installed = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*SQL Server*" }
+    if ($installed) {
+      Write-Output "SQL Server is already installed"
+      exit 1
+    } else {
+      Write-Output "SQL Server is not installed"
+      exit 0
+    }
+  register: sql_check
+  ignore_errors: yes
+
 - name: Create SQL Server installation directory
   win_file:
     path: "{{ sql_server_install_path }}"
     state: directory
+  when: sql_check.rc == 0
 
 - name: Create SQL Server configuration file
   win_template:
     src: ConfigurationFile.ini.j2
     dest: "{{ sql_server_config_path }}"
+  when: sql_check.rc == 0
 
 - name: Install SQL Server 2019
   win_shell: |
@@ -15,6 +30,7 @@
     $config = "{{ sql_server_config_path }}"
     & $setup /ConfigurationFile=$config
   register: sql_install_result
+  when: sql_check.rc == 0
 
 - name: Wait for SQL Server service to start
   win_service:
