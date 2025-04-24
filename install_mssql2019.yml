@@ -2,9 +2,11 @@
 - name: Install SQL Server 2019 Developer Edition
   hosts: all
   gather_facts: yes
+  collections:
+    - microsoft.sql
 
   roles:
-    - role: mssql_server
+    - role: microsoft.sql.server
       vars:
         sql_server_media_path: "C:\\SQL2019\\Evaluation_ENU"
         sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"
