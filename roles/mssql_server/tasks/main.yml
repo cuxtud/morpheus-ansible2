@@ -12,7 +12,7 @@
 - name: Install SQL Server 2019
   win_shell: |
     $setup = "{{ sql_server_media_path }}\setup.exe"
-    & $setup /ACTION=Install /FEATURES={{ sql_server_features }} /INSTANCENAME={{ sql_server_instance_name }} /SQLSVCACCOUNT="NT Service\MSSQL${{ sql_server_instance_name }}" /SQLSYSADMINACCOUNTS="BUILTIN\Administrators" /AGTSVCACCOUNT="NT Service\SQLAGENT${{ sql_server_instance_name }}" /SQLSVCSTARTUPTYPE=Automatic /AGTSVCSTARTUPTYPE=Automatic /IACCEPTSQLSERVERLICENSETERMS /Q
+    & $setup /ACTION=Install /FEATURES=SQLENGINE,TOOLS,CONN,BC /INSTANCENAME={{ sql_server_instance_name }} /SQLSVCACCOUNT="NT Service\MSSQL${{ sql_server_instance_name }}" /SQLSYSADMINACCOUNTS="BUILTIN\Administrators" /AGTSVCACCOUNT="NT Service\SQLAGENT${{ sql_server_instance_name }}" /SQLSVCSTARTUPTYPE=Automatic /AGTSVCSTARTUPTYPE=Automatic /IACCEPTSQLSERVERLICENSETERMS /Q
   register: sql_install_result
 
 - name: Wait for SQL Server service to start
