@@ -46,6 +46,32 @@
     start_mode: auto
   register: browser_service_status
 
+- name: Check if SQL Server port is open
+  win_shell: |
+    $rule = Get-NetFirewallRule -Name "SQLServer" -ErrorAction SilentlyContinue
+    if ($rule) {
+      Write-Output "SQL Server port rule exists"
+      exit 1
+    } else {
+      Write-Output "SQL Server port rule does not exist"
+      exit 0
+    }
+  register: sql_port_check
+  ignore_errors: true
+
+- name: Check if SQL Browser port is open
+  win_shell: |
+    $rule = Get-NetFirewallRule -Name "SQLBrowser" -ErrorAction SilentlyContinue
+    if ($rule) {
+      Write-Output "SQL Browser port rule exists"
+      exit 1
+    } else {
+      Write-Output "SQL Browser port rule does not exist"
+      exit 0
+    }
+  register: browser_port_check
+  ignore_errors: true
+
 - name: Open SQL Server port in Windows Firewall
   win_firewall_rule:
     name: SQLServer
@@ -55,7 +81,7 @@
     protocol: tcp
     state: present
     enabled: yes
-  when: sql_service_status.changed or sql_install_result.changed
+  when: (sql_service_status.changed or sql_install_result.changed) and sql_port_check.rc == 0
 
 - name: Open SQL Server Browser port in Windows Firewall
   win_firewall_rule:
@@ -66,4 +92,4 @@
     protocol: udp
     state: present
     enabled: yes
-  when: browser_service_status.changed or sql_install_result.changed 
+  when: (browser_service_status.changed or sql_install_result.changed) and browser_port_check.rc == 0 
