@@ -4,7 +4,7 @@
   gather_facts: yes
 
   roles:
-    - role: microsoft.sql.server
+    - role: mssql_server
       vars:
         sql_server_media_path: "C:\\SQL2019\\Evaluation_ENU"
         sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"
