@@ -1,6 +1,6 @@
 ---
 - name: Install SQL Server 2019 Developer Edition
-  hosts: windows_servers
+  hosts: all
   gather_facts: yes
 
   roles:
