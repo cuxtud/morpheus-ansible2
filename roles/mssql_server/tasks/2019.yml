@@ -10,7 +10,7 @@
     dest: "{{ sql_server_config_path }}"
 
 - name: Install SQL Server 2019
-  mssql_install:
+  microsoft.sql.sql_server_install:
     edition: "{{ sql_server_edition }}"
     version: "{{ sql_server_version }}"
     instance_name: "{{ sql_server_instance_name }}"
