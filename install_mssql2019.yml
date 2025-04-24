@@ -10,7 +10,7 @@
         sql_server_edition: "Developer"
         sql_server_install_path: "C:\\SQLServer2019"
         sql_server_config_path: "C:\\SQLServer2019\\ConfigurationFile.ini"
-        sql_server_media_path: "C:\SQL2019\Evaluation_ENU\"  # Update this path to where your SQL Server installation media is located
+        sql_server_media_path: "C:\\SQL2019\\Evaluation_ENU"  # Update this path to where your SQL Server installation media is located
         sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"  # Change this to a secure password
         sql_server_instance_name: "MSSQLSERVER"
         sql_server_features: "SQLENGINE,SSMS,ADV_SSMS"
