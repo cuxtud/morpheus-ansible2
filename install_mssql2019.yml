@@ -1,0 +1,78 @@
+---
+- name: Install SQL Server 2019 Developer Edition
+  hosts: windows_servers
+  gather_facts: yes
+
+  roles:
+    - role: mssql_server
+      vars:
+        sql_server_version: "2019"
+        sql_server_edition: "Developer"
+        sql_server_install_path: "C:\\SQLServer2019"
+        sql_server_config_path: "C:\\SQLServer2019\\ConfigurationFile.ini"
+        sql_server_media_path: "C:\SQL2019\Evaluation_ENU\"  # Update this path to where your SQL Server installation media is located
+        sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"  # Change this to a secure password
+        sql_server_instance_name: "MSSQLSERVER"
+        sql_server_features: "SQLENGINE,SSMS,ADV_SSMS"
+
+  tasks:
+    - name: Create SQL Server installation directory
+      win_file:
+        path: "{{ sql_server_install_path }}"
+        state: directory
+
+    - name: Create SQL Server configuration file
+      win_template:
+        src: ConfigurationFile.ini.j2
+        dest: "{{ sql_server_config_path }}"
+
+    - name: Install SQL Server 2019
+      mssql_install:
+        edition: "{{ sql_server_edition }}"
+        version: "{{ sql_server_version }}"
+        instance_name: "{{ sql_server_instance_name }}"
+        features: "{{ sql_server_features }}"
+        sa_password: "{{ sql_server_sa_password }}"
+        install_path: "{{ sql_server_install_path }}"
+        media_path: "{{ sql_server_media_path }}"
+        configuration_file: "{{ sql_server_config_path }}"
+        accept_eula: yes
+        enable_tcp: yes
+        enable_remote_connections: yes
+      register: sql_install_result
+
+    - name: Wait for SQL Server service to start
+      win_service:
+        name: "MSSQL${{ sql_server_instance_name }}"
+        state: started
+        start_mode: auto
+      when: sql_install_result.changed
+
+    - name: Enable SQL Server Browser service
+      win_service:
+        name: SQLBrowser
+        state: started
+        start_mode: auto
+      when: sql_install_result.changed
+
+    - name: Open SQL Server port in Windows Firewall
+      win_firewall_rule:
+        name: SQLServer
+        localport: 1433
+        action: allow
+        direction: in
+        protocol: tcp
+        state: present
+        enabled: yes
+      when: sql_install_result.changed
+
+    - name: Open SQL Server Browser port in Windows Firewall
+      win_firewall_rule:
+        name: SQLBrowser
+        localport: 1434
+        action: allow
+        direction: in
+        protocol: udp
+        state: present
+        enabled: yes
+      when: sql_install_result.changed 

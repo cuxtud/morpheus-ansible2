@@ -1,0 +1,4 @@
+---
+- name: Include SQL Server 2019 tasks
+  include_tasks: 2019.yml
+  when: sql_server_version == "2019" 
