@@ -1,0 +1,92 @@
+---
+- name: "Onboard Windows server to ManageEngine OpManager"
+  hosts: all
+  gather_facts: false
+
+  vars:
+    opm_url: "{{ opmanagerUrl}}"
+    opm_api_key: "{{ opmanagerApiKey }}"
+    opm_cred_name: "{{ opmanagerCredName }}"
+    opm_bv_name: "{{ opmanagerBvName }}"
+    opm_group_name: "{{ opmanagerGroupName }}"
+    device_ip: "{{ externalIp }}"
+    device_hostname: "{{ hostname }}"
+
+  tasks:
+    - name: "Check if device already exists in OpManager"
+      uri:
+        url: "{{ opm_url }}/api/json/device/getDeviceInfo"
+        method: GET
+        headers:
+          apiKey: "{{ opm_api_key }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          deviceName: "{{ device_ip }}"
+        validate_certs: false
+        status_code: [200, 400, 404]
+        timeout: 30
+      register: device_check
+      delegate_to: localhost
+      ignore_errors: true
+
+    - name: "Set fact - device already exists"
+      set_fact:
+        device_exists: >-
+          {{
+            device_check.status == 200 and
+            device_check.json is defined and
+            device_check.json.DeviceDetails is defined
+          }}
+
+    - name: "Log - device already onboarded"
+      debug:
+        msg: "Device {{ device_ip }} ({{ device_hostname }}) already registered in OpManager. Skipping addDevice."
+      when: device_exists | bool
+
+    - name: "Add Windows server to OpManager"
+      uri:
+        url: "{{ opm_url }}/api/json/discovery/addDevice"
+        method: POST
+        headers:
+          apiKey: "{{ opm_api_key }}"
+          Content-Type: "application/json"
+        body_format: form-urlencoded
+        body:
+          name: "{{ device_ip }}"
+          displayName: "{{ device_hostname }}"
+          credentialName: "{{ opm_cred_name }}"
+          type: "Windows"
+        validate_certs: false
+        status_code: [200, 201]
+        timeout: 60
+      register: add_device_result
+      delegate_to: localhost
+      when: not (device_exists | bool)
+
+    - name: "Capture moid from addDevice response"
+      set_fact:
+        device_moid: "{{ add_device_result.json.device.moid | default('') }}"
+        device_name_opm: "{{ add_device_result.json.device.deviceName | default(device_ip) }}"
+      when:
+        - not (device_exists | bool)
+        - add_device_result is defined
+        - add_device_result.status is defined
+        - add_device_result.status in [200, 201]
+
+    - name: "Fail if device was not added successfully"
+      fail:
+        msg: "Failed to add device to OpManager. Response: {{ add_device_result | to_json }}"
+      when:
+        - not (device_exists | bool)
+        - add_device_result is defined
+        - add_device_result.status is defined
+        - add_device_result.status not in [200, 201]
+
+    - name: "Log - device added successfully"
+      debug:
+        msg: "Device {{ device_hostname }} ({{ device_ip }}) added to OpManager. MOID: {{ device_moid }}"
+      when:
+        - not (device_exists | bool)
+        - device_moid is defined
+        - device_moid | length > 0

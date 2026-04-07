@@ -1,0 +1,68 @@
+---
+- name: Create MongoDB admin user
+  shell: |
+    mongosh --eval '
+    use admin
+    db.adminCommand({
+      createUser: "{{ mongodb_admin_user }}",
+      pwd: "{{ mongodb_admin_password }}",
+      roles: [{ role: "root", db: "admin" }]
+    })
+    '
+  become: true
+  become_user: "{{ mongodb_user }}"
+  register: admin_user_result
+  failed_when: 
+    - admin_user_result.rc != 0
+    - "'already exists' not in admin_user_result.stderr"
+  changed_when: "'ok: 1' in admin_user_result.stdout"
+
+- name: Stop MongoDB service before enabling authentication
+  systemd:
+    name: mongod
+    state: stopped
+
+- name: Deploy MongoDB configuration file (with auth enabled)
+  template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    mode: '0644'
+  vars:
+    auth_enabled: true
+
+- name: Start MongoDB service with authentication
+  systemd:
+    name: mongod
+    state: started
+
+- name: Wait for MongoDB to start with authentication
+  wait_for:
+    port: "{{ mongodb_port }}"
+    delay: 5
+    timeout: 30
+
+- name: Create application database and user
+  shell: |
+    mongosh -u {{ mongodb_admin_user }} -p {{ mongodb_admin_password }} --eval '
+    use {{ mongodb_app_db_name }}
+    db.myCollection.insertOne({ name: "Example Document" })
+    use admin
+    db.createUser({
+      user: "{{ mongodb_app_user }}",
+      pwd: "{{ mongodb_app_password }}",
+      roles: [
+        { role: "readWrite", db: "{{ mongodb_app_db_name }}" },
+        { role: "listDatabases", db: "admin" }
+      ]
+    })
+    '
+  become: true
+  become_user: "{{ mongodb_user }}"
+  when: mongodb_create_app_db | bool
+  register: app_user_result
+  failed_when:
+    - app_user_result.rc != 0
+    - "'already exists' not in app_user_result.stderr"
+  changed_when: "'ok: 1' in app_user_result.stdout"

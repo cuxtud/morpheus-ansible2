@@ -1,0 +1,52 @@
+---
+- name: Check MongoDB service status
+  systemd:
+    name: mongod
+  register: mongod_service_status
+
+- name: Verify MongoDB is listening on configured port
+  wait_for:
+    port: "{{ mongodb_port }}"
+    timeout: 10
+  register: port_check
+
+- name: Test MongoDB connection with admin user
+  shell: |
+    mongosh -u {{ mongodb_admin_user }} -p {{ mongodb_admin_password }} --eval 'db.adminCommand({ ping: 1 })'
+  become: true
+  become_user: "{{ mongodb_user }}"
+  register: connection_test
+  changed_when: false
+
+- name: Verify MongoDB admin database exists
+  shell: |
+    mongosh -u {{ mongodb_admin_user }} -p {{ mongodb_admin_password }} --eval 'show dbs' | grep admin
+  become: true
+  become_user: "{{ mongodb_user }}"
+  register: admin_db_check
+  changed_when: false
+
+- name: Display MongoDB installation summary
+  debug:
+    msg:
+      - "================== MongoDB Installation Summary =================="
+      - "Status: {{ 'SUCCESS' if mongod_service_status.status.ActiveState == 'active' else 'FAILED' }}"
+      - "Service State: {{ mongod_service_status.status.ActiveState }}"
+      - "MongoDB Version: {{ mongodb_version }}"
+      - "Port: {{ mongodb_port }}"
+      - "Bind IP: {{ mongodb_bind_ip }}"
+      - "Admin User: {{ mongodb_admin_user }}"
+      - "Data Path: {{ mongodb_db_path }}"
+      - "Log Path: {{ mongodb_log_path }}/mongod.log"
+      - "Backup Path: {{ mongodb_backup_path }}"
+      - "Authentication: {{ 'Enabled' if mongodb_authorization_enabled else 'Disabled' }}"
+      - "Application DB Created: {{ 'Yes - ' + mongodb_app_db_name if mongodb_create_app_db else 'No' }}"
+      - "Connection Test: {{ 'PASSED' if connection_test.rc == 0 else 'FAILED' }}"
+      - "==============================================================="
+      - "Connect with: mongosh -u {{ mongodb_admin_user }} -p"
+
+- name: Fail if MongoDB is not running properly
+  fail:
+    msg: "MongoDB installation validation failed. Service is not active or connection test failed."
+  when: 
+    - mongod_service_status.status.ActiveState != 'active' or connection_test.rc != 0

@@ -1,0 +1,6 @@
+---
+# MySQL Cluster Role Handlers
+- name: restart mysql
+  service:
+    name: mysql
+    state: restarted 

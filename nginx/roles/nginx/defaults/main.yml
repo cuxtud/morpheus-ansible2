@@ -1,0 +1,10 @@
+---
+nginx_package_urls:
+  rocky8: "https://nginx.org/packages/centos/8/x86_64/RPMS/nginx-1.26.3-1.el8.ngx.x86_64.rpm"
+  rocky9: "https://nginx.org/packages/centos/9/x86_64/RPMS/nginx-1.26.3-1.el9.ngx.x86_64.rpm"
+  rhel8: "https://nginx.org/packages/rhel/8/x86_64/RPMS/nginx-1.26.3-1.el8.ngx.x86_64.rpm"
+  rhel9: "https://nginx.org/packages/rhel/9/x86_64/RPMS/nginx-1.26.3-1.el9.ngx.x86_64.rpm"
+
+nginx_package_url: "{{ nginx_package_urls[ansible_distribution | lower + ansible_distribution_major_version] }}"
+nginx_package_dest: "/var/tmp/nginx-{{ ansible_distribution_major_version }}.rpm"
+nginx_version: "1.26.3"

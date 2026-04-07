@@ -1,0 +1,10 @@
+---
+- name: Enable firewall ports for nginx
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  loop:
+    - "8080/http"
+    - "8443/https"

@@ -1,0 +1,6 @@
+---
+- name: MySQL Installation and Configuration
+  hosts: all
+  become: true
+  roles:
+    - mysql_InnoDBcluster

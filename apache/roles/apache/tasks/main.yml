@@ -1,0 +1,24 @@
+---
+- name: install apache
+  yum:
+    name: httpd
+    state: present
+
+- name: ensure apache2 is running
+  service:
+    name: httpd 
+    state: started
+    enabled: True
+
+- name: enable firewall
+  firewall-cmd:
+    zone: public
+    permanent: true
+    state: enabled
+    service: http
+    immediate: true
+
+- name: reload firewall
+  firewall-cmd:
+    zone: public
+    reload: true

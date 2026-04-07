@@ -1,0 +1,35 @@
+---
+- name: Check if {{ mongodb_disk }} exists
+  stat:
+    path: "{{ mongodb_disk }}"
+  register: sdb_disk
+
+- name: Fail if {{ mongodb_disk }} does not exist
+  fail:
+    msg: "{{ mongodb_disk }} not found. Please ensure the disk is available."
+  when: not sdb_disk.stat.exists
+
+- name: Check if partition already exists
+  stat:
+    path: "{{ mongodb_partition }}"
+  register: partition_check
+  ignore_errors: true
+
+- name: Create GPT partition table on {{ mongodb_disk }}
+  parted:
+    device: "{{ mongodb_disk }}"
+    label: gpt
+    number: 1
+    part_start: 0%
+    part_end: 100%
+    part_type: primary
+    state: present
+  when: partition_check is defined and not partition_check.stat.exists
+
+- name: Set partition type to Linux LVM (8e)
+  parted:
+    device: "{{ mongodb_disk }}"
+    number: 1
+    part_type: primary
+    flags: [lvm]
+  when: partition_check is defined and not partition_check.stat.exists 

@@ -1,0 +1,32 @@
+---
+- name: Download specific NGINX RPM package
+  get_url:
+    url: "{{ nginx_package_url }}"
+    dest: "{{ nginx_package_dest }}"
+    mode: '0644'
+  environment: "{{ proxy_env }}"
+  register: nginx_download
+
+- name: Install NGINX RPM package
+  yum:
+    name: "{{ nginx_package_dest }}"
+    state: present
+  when: nginx_download is succeeded
+
+- name: Enable nginx service
+  systemd:
+    name: nginx
+    enabled: yes
+  when: nginx_download is succeeded
+
+- name: Start nginx service
+  systemd:
+    name: nginx
+    state: started
+  when: nginx_download is succeeded
+
+- name: Check nginx service status
+  command: systemctl status nginx
+  register: nginx_status
+  changed_when: false
+  when: nginx_download is succeeded

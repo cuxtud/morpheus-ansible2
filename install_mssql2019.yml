@@ -14,3 +14,4 @@
         sql_server_sa_password: "{{ morpheus['customOptions']['sql_pass'] }}"
         sql_server_instance_name: "MSSQLSERVER"
         sql_server_features: "SQLENGINE,TOOLS,CONN,BC"
+        sql_db_team_ad_group : "db-sql-prod"

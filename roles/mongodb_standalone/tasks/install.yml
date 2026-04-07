@@ -1,0 +1,32 @@
+---
+- name: Create temporary directory for MongoDB RPMs
+  file:
+    path: "{{ mongodb_rpm_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy MongoDB RPM packages to target server
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mongodb_rpm_path }}/"
+    mode: '0644'
+  loop: "{{ mongodb_rpms }}"
+  when: mongodb_rpm_path is match("^/.*")
+
+- name: Install MongoDB RPM packages
+  yum:
+    name: "{{ mongodb_rpm_path }}/{{ item }}"
+    state: present
+    disable_gpg_check: yes
+  loop: "{{ mongodb_rpms }}"
+
+- name: Stop MongoDB service if running
+  systemd:
+    name: mongod
+    state: stopped
+  ignore_errors: true
+
+- name: Ensure MongoDB service is enabled
+  systemd:
+    name: mongod
+    enabled: yes

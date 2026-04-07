@@ -1,0 +1,58 @@
+---
+- name: Create MongoDB group
+  group:
+    name: "{{ mongodb_group }}"
+    state: present
+
+- name: Create MongoDB user
+  user:
+    name: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    shell: /bin/bash
+    createhome: yes
+    state: present
+
+- name: Create MongoDB data directory
+  file:
+    path: "{{ mongodb_data_path }}"
+    state: directory
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    mode: '0755'
+
+- name: Create MongoDB backup directory
+  file:
+    path: "{{ mongodb_backup_path }}"
+    state: directory
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    mode: '0755'
+
+- name: Create MongoDB DB subdirectory
+  file:
+    path: "{{ mongodb_db_path }}"
+    state: directory
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    mode: '0755'
+
+- name: Create MongoDB log subdirectory
+  file:
+    path: "{{ mongodb_log_path }}"
+    state: directory
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    mode: '0755'
+
+- name: Check if cyrus-sasl packages are installed
+  package_facts:
+    manager: auto
+
+- name: Install cyrus-sasl dependencies
+  yum:
+    name:
+      - cyrus-sasl
+      - cyrus-sasl-gssapi
+      - cyrus-sasl-plain
+    state: present
+  when: "'cyrus-sasl' not in ansible_facts.packages"

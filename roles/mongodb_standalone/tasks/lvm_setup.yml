@@ -1,0 +1,30 @@
+---
+- name: Create physical volume on {{ mongodb_partition }}
+  command: pvcreate {{ mongodb_partition }}
+  args:
+    creates: "{{ mongodb_partition }}"
+
+- name: Create volume group {{ mongodb_vg_name }}
+  command: vgcreate {{ mongodb_vg_name }} {{ mongodb_partition }}
+  args:
+    creates: /dev/{{ mongodb_vg_name }}
+
+- name: Create logical volume {{ mongodb_data_lv }} ({{ mongodb_data_size | string }}G)
+  command: lvcreate -n {{ mongodb_data_lv }} -L {{ mongodb_data_size | string }}G {{ mongodb_vg_name }}
+  args:
+    creates: /dev/{{ mongodb_vg_name }}/{{ mongodb_data_lv }}
+
+- name: Create logical volume {{ mongodb_backup_lv }} ({{ mongodb_data_size | string }}G)
+  command: lvcreate -n {{ mongodb_backup_lv }} -L {{ mongodb_data_size | string }}G {{ mongodb_vg_name }}
+  args:
+    creates: /dev/{{ mongodb_vg_name }}/{{ mongodb_backup_lv }}
+
+- name: Format mongodbQL data logical volume with XFS
+  filesystem:
+    fstype: xfs
+    dev: /dev/{{ mongodb_vg_name }}/{{ mongodb_data_lv }}
+
+- name: Format mongodbQL backup logical volume with XFS
+  filesystem:
+    fstype: xfs
+    dev: /dev/{{ mongodb_vg_name }}/{{ mongodb_backup_lv }}

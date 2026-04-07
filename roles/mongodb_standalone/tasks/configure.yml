@@ -1,0 +1,29 @@
+---
+- name: Backup existing mongod.conf if exists
+  copy:
+    src: /etc/mongod.conf
+    dest: /etc/mongod.conf_org_bkp
+    remote_src: yes
+    force: no
+  ignore_errors: true
+
+- name: Deploy MongoDB configuration file (without auth initially)
+  template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_group }}"
+    mode: '0644'
+  vars:
+    auth_enabled: false
+
+- name: Start MongoDB service for initial setup
+  systemd:
+    name: mongod
+    state: started
+
+- name: Wait for MongoDB to start
+  wait_for:
+    port: "{{ mongodb_port }}"
+    delay: 5
+    timeout: 30

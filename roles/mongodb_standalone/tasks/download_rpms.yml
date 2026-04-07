@@ -1,0 +1,36 @@
+---
+- name: download mongodb 7.0.25 package
+  get_url:
+    url: "{{ item }}"
+    validate_certs: false
+    dest: "/tmp/"
+  with_items: 
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-database-tools-rhel93-x86_64-100.13.0.rpm"
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-enterprise-server-7.0.25-1.el9.x86_64.rpm"
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-mongosh-2.5.9.x86_64.rpm"
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-mongosh-shared-openssl3-2.3.7.x86_64.rpm"
+  when: mongodb_version == "7.0.25"
+  register: mongodb_rpms_7_0_25
+
+- name: download mongodb 8.2.1 package
+  get_url:
+    url: "{{ item }}"
+    validate_certs: false
+    dest: "/tmp/"
+  with_items: 
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-database-tools-rhel93-x86_64-100.13.0.rpm"
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-enterprise-server-8.2.1-1.el9.x86_64.rpm"
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-mongosh-2.5.9.x86_64.rpm"
+    - "https://{{ morpheus['morpheus']['applianceHost'] }}/public-archives/download/Artifacts/mongodb-mongosh-shared-openssl3-2.3.7.x86_64.rpm"
+  when: mongodb_version == "8.2.1"
+  register: mongodb_rpms_8_2_1
+
+- name: Display download results for mongodb 7.0.25
+  debug:
+    msg: "MongoDB 7.0.25 package downloaded successfully" 
+  when: mongodb_rpms_7_0_25 is defined and mongodb_version == "7.0.25"
+
+- name: Display download results for mongodb 8.2.1
+  debug:
+    msg: "MongoDB 8.2.1 package downloaded successfully" 
+    when: mongodb_rpms_8_2_1 is defined and mongodb_version == "8.2.1"

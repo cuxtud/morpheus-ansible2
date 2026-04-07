@@ -1,0 +1,6 @@
+---
+- name: Install MongoDB Standalone
+  hosts: all
+  become: yes
+  roles:
+    - role: mongodb_standalone

@@ -1,0 +1,83 @@
+---
+# MySQL Cluster Role Tasks
+
+- name: Ensure MySQL is installed
+  package:
+    name: mysql-server
+    state: present
+
+- name: Start and enable MySQL service
+  service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Add firewall rules for MySQL ports
+  ansible.builtin.firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: yes
+  loop: "{{ firewall_ports }}"
+  when: ansible_facts['distribution'] == 'CentOS'
+
+- name: Add UFW rules for MySQL ports
+  ufw:
+    rule: allow
+    name: "MySQL {{ item }}"
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_ports }}"
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Secure MySQL installation
+  mysql_user:
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    state: present
+
+- name: Remove anonymous users
+  mysql_user:
+    name: ''
+    host: localhost
+    state: absent
+
+- name: Remove test database
+  mysql_db:
+    name: test
+    state: absent
+
+- name: Set MySQL root password
+  mysql_user:
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    update_password: always
+
+- name: Create cluster admin user
+  mysql_user:
+    name: "{{ cluster_admin_user }}"
+    host: '%'
+    password: "{{ cluster_admin_password }}"
+    priv: "*.*:ALL"
+    state: present
+
+- name: Configure MySQL settings
+  mysql_variables:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    variable: "{{ item.key }}"
+    value: "{{ item.value }}"
+    mode: persist
+  loop:
+    - { key: 'innodb_buffer_pool_size', value: "{{ buffer_size }}G" }
+    - { key: 'innodb_buffer_pool_instances', value: "{{ buffer_size }}" }
+    - { key: 'innodb_use_fdatasync', value: 'ON' }
+    - { key: 'bind-address', value: '::' }
+    - { key: 'max_connections', value: "{{ max_connections }}" }
+    - { key: 'sql_generate_invisible_primary_key', value: '1' }
+    - { key: 'binlog_expire_logs_seconds', value: '604800' }
+    - { key: 'binlog_expire_logs_auto_purge', value: 'ON' }
+  when: ansible_facts['distribution'] in ['CentOS', 'Ubuntu']
+  notify: restart mysql 

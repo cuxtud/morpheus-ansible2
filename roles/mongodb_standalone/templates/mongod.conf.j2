@@ -1,0 +1,31 @@
+# mongod.conf
+
+# where to write logging data.
+systemLog:
+  destination: file
+  logAppend: {{ mongodb_log_append | lower }}
+  path: {{ mongodb_log_path }}/mongod.log
+
+# Where and how to store data.
+storage:
+  dbPath: {{ mongodb_db_path }}
+  directoryPerDB: true
+  engine: wiredTiger
+  wiredTiger:
+    engineConfig:
+      directoryForIndexes: true
+
+# how the process runs
+processManagement:
+  fork: {{ mongodb_fork | lower }}
+  pidFilePath: {{ mongodb_pid_path }}
+
+# network interfaces
+net:
+  port: {{ mongodb_port }}
+  bindIp: {{ mongodb_bind_ip }}
+
+{% if auth_enabled %}
+security:
+  authorization: enabled
+{% endif %}

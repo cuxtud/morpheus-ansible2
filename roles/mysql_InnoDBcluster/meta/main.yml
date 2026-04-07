@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  role_name: mysql_cluster
+  author: Ansible User
+  description: Role for installing and configuring MySQL InnoDB Cluster
+  company: Your Company
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: "EL"
+      versions:
+        - "7"
+        - "8"
+    - name: "Ubuntu"
+      versions:
+        - "all"
+  galaxy_tags:
+    - mysql
+    - database
+    - cluster
+
+dependencies: [] 

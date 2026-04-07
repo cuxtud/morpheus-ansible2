@@ -1,0 +1,27 @@
+---
+- name: Disk set up tasks
+  include_tasks: disk_setup.yml
+
+- name: LVM setup tasks
+  include_tasks: lvm_setup.yml
+
+- name: Include prerequisites tasks
+  include_tasks: prerequisites.yml
+  
+- name: Mount setup tasks
+  include_tasks: mount_setup.yml
+
+- name: download mongodb rpms
+  include_tasks: download_rpms.yml
+
+- name: Include installation tasks
+  include_tasks: install.yml
+
+- name: Include configuration tasks
+  include_tasks: configure.yml
+
+- name: Include user creation tasks
+  include_tasks: users.yml
+
+- name: Include validation tasks
+  include_tasks: validate.yml

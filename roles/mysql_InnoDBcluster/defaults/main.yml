@@ -1,0 +1,14 @@
+---
+# MySQL Cluster Role Default Variables
+mysql_root_password: "P@ssw0rd!"
+cluster_admin_user: "clusterAdmin"
+cluster_admin_password: "P@ssw0rd!"
+mysql_version: "8.0.32"
+major_minor_limiter: "{{ mysql_version.split('.')[0:2] | join('.') }}"
+buffer_size: "{{ ansible_memtotal_mb * 0.7 / 1024 | round(0) }}"
+max_connections: 2001
+firewall_ports:
+  - 3306
+  - 33060
+  - 33061
+  - 33062 

@@ -1,4 +1,103 @@
 ---
+- name: Check if server has joined a domain
+  win_shell: |
+    $computerSystem = Get-WmiObject -Class Win32_ComputerSystem
+    if ($computerSystem.PartOfDomain) {
+      Write-Output "Server is domain joined"
+      exit 0
+    } else {
+      Write-Output "Server is not domain joined"
+      exit 1
+    }
+  register: domain_check
+  ignore_errors: true
+
+- name: Add the SQL DB team AD group in Administrators group
+  win_group_membership:
+    name: Administrators
+    members: "{{ sql_db_team_ad_group }}"
+    state: present
+  when: domain_check.rc == 0
+  #register: admin_group_result 
+
+- name: Check if server has 6GB RAM
+  win_shell: |
+    $computerSystem = Get-WmiObject -Class Win32_ComputerSystem
+    $totalMemoryGB = [math]::Round($computerSystem.TotalPhysicalMemory / 1GB, 2)
+    if ($totalMemoryGB -ge 6) {
+      Write-Output "Server has sufficient RAM: $totalMemoryGB GB"
+      exit 0
+    } else {
+      Write-Output "Server has insufficient RAM: $totalMemoryGB GB"
+      exit 1
+    }
+  register: ram_check
+  ignore_errors: true
+
+- name: Check if PowerShell 3.0 is installed
+  win_shell: |
+    $psVersion = $PSVersionTable.PSVersion
+    if ($psVersion.Major -ge 3) {
+      Write-Output "PowerShell version $($psVersion.ToString()) is installed"
+      exit 0
+    } else {
+      Write-Output "PowerShell version $($psVersion.ToString()) is installed, but version 3.0 or higher is required"
+      exit 1
+    }
+  register: ps_check
+  ignore_errors: true
+
+- name: Install PowerShell 3.0 if not installed
+  win_shell: |
+    $url = "https://download.microsoft.com/download/E/7/6/E76850B8-DA6E-4FF5-8CCE-A24FC513FD16/Windows6.1-KB2506143-x64.msu"
+    $output = "$env:TEMP\Windows6.1-KB2506143-x64.msu"
+    
+    # Download the installer
+    Invoke-WebRequest -Uri $url -OutFile $output
+    
+    # Install the update
+    Start-Process -FilePath "wusa.exe" -ArgumentList "$output /quiet /norestart" -Wait
+    
+    # Clean up
+    Remove-Item $output -Force
+    
+    # Verify installation
+    $psVersion = $PSVersionTable.PSVersion
+    if ($psVersion.Major -ge 3) {
+      Write-Output "PowerShell 3.0 successfully installed"
+      exit 0
+    } else {
+      Write-Output "Failed to install PowerShell 3.0"
+      exit 1
+    }
+  when: ps_check.rc == 1
+  register: ps_install
+  ignore_errors: true
+
+- name: Check if .NET 4.8 is installed
+  win_shell: |
+    $dotnet48 = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" -ErrorAction SilentlyContinue
+    if ($dotnet48 -and $dotnet48.Release -ge 528040) {
+      Write-Output ".NET 4.8 is installed"
+      exit 0
+    } else {
+      Write-Output ".NET 4.8 is not installed"
+      exit 1
+    }
+  register: dotnet_check
+  ignore_errors: true
+
+- name: Install .NET 4.8
+  win_shell: |
+    $url = "https://go.microsoft.com/fwlink/?LinkId=2085155"
+    $output = "$env:TEMP\ndp48-web.exe"
+    Invoke-WebRequest -Uri $url -OutFile $output
+    Start-Process -FilePath $output -ArgumentList "/quiet /norestart" -Wait
+    Remove-Item $output -Force
+  when: dotnet_check.rc == 1
+  register: dotnet_install
+  ignore_errors: true
+
 - name: Check if SQL Server is already installed
   win_shell: |
     $installed = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*SQL Server*" }
@@ -17,6 +116,27 @@
     path: "{{ sql_server_install_path }}"
     state: directory
   when: sql_check.rc == 0
+
+- name: Download the executable to the server
+  win_shell: |
+    $url = "https://{{ morpheus['morpheus']['applianceHost']}}/public-archives/download/mssql_2019/ncli.zip"
+    $output = "{{ sql_server_install_path }}\ncli.zip"
+    
+    # Download the file with SSL certificate check disabled
+    Write-Output "Downloading SQL Server installer from $url..."
+    Invoke-WebRequest -Uri $url -OutFile $output -SkipCertificateCheck
+    
+    # Verify the download
+    if (Test-Path $output) {
+      Write-Output "Download completed successfully"
+      exit 0
+    } else {
+      Write-Output "Download failed"
+      exit 1
+    }
+  when: sql_check.rc == 0
+  register: download_result
+  ignore_errors: true
 
 - name: Create SQL Server configuration file
   win_template:

@@ -1,0 +1,56 @@
+---
+# MongoDB version and packages
+mongodb_version: "{{ morpheus['customOptions']['mongodbVersion']}}"
+
+# User and group configuration
+mongodb_user: mongod
+mongodb_group: mongod
+
+# Disk Configuration
+
+mongodb_disk: /dev/sdb
+mongodb_partition: /dev/sdb1
+
+# Volume group and logical volumes
+mongodb_vg_name: datavg
+mongodb_data_lv: mgdbdata
+mongodb_backup_lv: mgdbbackup
+
+# Logical volume sizes
+mongodb_data_size: "{{ morpheus['customOptions']['mgdbData'] }}"
+mongodb_backup_size: "{{ morpheus['customOptions']['mgdbData'] | | int * 2) | int  }}"
+
+# Filesystem configuration
+mongodb_data_path: /u101/mongo/data
+mongodb_backup_path: /u102/mongo/backup
+
+# MongoDB directories
+mongodb_db_path: "{{ mongodb_data_path }}/DB"
+mongodb_log_path: "{{ mongodb_data_path }}/log"
+mongodb_pid_path: "{{ mongodb_data_path }}/mongod.pid"
+
+# MongoDB configuration
+mongodb_port: 27017
+mongodb_bind_ip: "0.0.0.0"
+mongodb_log_append: false
+mongodb_fork: true
+
+# Admin user configuration
+mongodb_admin_user: mongoadm
+mongodb_admin_password: "{{ lookup('cypher','secret=secret/mongodbadminpassword') }}"
+mongodb_admin_db: admin
+
+# Application database configuration (optional)
+
+mongodb_create_app_db: true
+mongodb_app_db_name: "{{ morpheus['customOptions']['mgApp'] }}"
+mongodb_app_user: "{{ morpheus['customOptions']['mgAppUser'] }}"
+mongodb_app_password: "{{ morpheus['customOptions']['mgAppPass'] }}"
+
+
+# Security
+mongodb_authorization_enabled: true
+
+
+# Filesystem type
+postgres_fs_type: xfs

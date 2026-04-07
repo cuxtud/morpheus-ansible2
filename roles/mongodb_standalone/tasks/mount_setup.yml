@@ -1,0 +1,16 @@
+---
+- name: Mount {{ mongodb_data_lv }} to {{ mongodb_data_path }}
+  mount:
+    path: "{{ mongodb_data_path }}"
+    src: /dev/{{ mongodb_vg_name }}/{{ mongodb_data_lv }}
+    fstype: xfs
+    opts: defaults,noatime
+    state: mounted
+
+- name: Mount {{ mongodb_backup_lv }} to {{ mongodb_backup_path }}
+  mount:
+    path: "{{ mongodb_backup_path }}"
+    src: /dev/{{ mongodb_vg_name }}/{{ mongodb_backup_lv }}
+    fstype: xfs
+    opts: defaults,noatime
+    state: mounted 
